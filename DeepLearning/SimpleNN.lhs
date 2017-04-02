@@ -169,4 +169,6 @@ The output of running this program is the following
 
 As one can see, the mean squared error after training is almost zero.
 
+You can find all source code files [here](https://github.com/rzil/honours/tree/master/DeepLearning).
+
 This file is [Literate Haskell Markdown](https://github.com/sol/markdown-unlit). Use `ghci -pgmL markdown-unlit SimpleNN.lhs` to run.
