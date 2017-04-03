@@ -1,4 +1,4 @@
-module Main where
+module Experiments where
 
 import System.Random
 import Data.List.Split
@@ -22,15 +22,14 @@ neuralNet :: Floating a => [a] -> a -> a
 neuralNet params z = sum (zipWith (*) w1 (map activation (zipWith (+) (map (z *) w0) c))) + b
  where [w0,c,w1,[b]] = splitPlaces [neuralNetWidth,neuralNetWidth,neuralNetWidth,1] params
 
-target :: Num a => Complex a -> Complex a
-target z = (realPart z) :+ 0
+target z = (realPart z)**1.4 :+ 0
 
 norm :: Num a => Complex a -> a
 norm z = (realPart z)^2 + (imagPart z)^2
 
 neuralNet_Error :: (Ord a, Floating a) => [Complex a] -> a
 neuralNet_Error params = sum [let z = fromIntegral z_ in (norm ((neuralNet params z) - (target z))) / 2 | z_ <- inputSpace]
- where inputSpace = [1..9]
+ where inputSpace = [1..10]
 
 neuralNet_Error_Gradient :: (Ord a, Floating a) => [Complex a] -> [Complex a]
 neuralNet_Error_Gradient params = map (fmap dVal) (gradient neuralNet_Error params)
@@ -55,10 +54,7 @@ neuralNet_update params = zipWith (+) params (map ((stepSize :+ 0) *) searchDire
   startingStepSize = 10
   stepSize = backtrackingLineSearch neuralNet_Error params grad searchDirection startingStepSize
 
-backtrackingLineSearch
-  :: (Ord t, Floating t) =>
-     ([Complex t] -> t)
-     -> [Complex t] -> [Complex t] -> [Complex t] -> t -> t
+backtrackingLineSearch :: (Ord t, Floating t) => ([Complex t] -> t) -> [Complex t] -> [Complex t] -> [Complex t] -> t -> t
 backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16)) (iterate (tau *) a0))
  where
   tau = 0.8
