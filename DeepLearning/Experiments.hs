@@ -22,7 +22,7 @@ neuralNet :: Floating a => [a] -> a -> a
 neuralNet params z = sum (zipWith (*) w1 (map activation (zipWith (+) (map (z *) w0) c))) + b
  where [w0,c,w1,[b]] = splitPlaces [neuralNetWidth,neuralNetWidth,neuralNetWidth,1] params
 
-target z = (realPart z)**1.4 :+ 0
+target z = (realPart z)**1.2 :+ 0
 
 norm :: Num a => Complex a -> a
 norm z = (realPart z)^2 + (imagPart z)^2
