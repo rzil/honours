@@ -32,10 +32,13 @@ activation :: Floating a => a -> a
 activation = logistic
 
 neuralNet :: Floating t => [t] -> t -> t -> t
-neuralNet params u v = (((transpose w2) * (fmap activation (w1 * (fmap activation ((w0 * x) + c)) + b))) + d) ! (1,1)
+neuralNet params u v = (((transpose w2) * hiddenLayers) + d) ! (1,1)
  where
   -- construct input vector
   x = fromList 2 1 [u,v]
+  
+  applyHiddenLayer w c x = fmap activation ((w * x) + c)
+  hiddenLayers = foldr ($) x (zipWith applyHiddenLayer [w1,w0] [b,c])
   
   -- extract the various components
   [w0_param,c_param,w1_param,b_param,w2_param,d_param] = splitPlaces [2*neuralNetWidth,neuralNetWidth,neuralNetWidth^2,neuralNetWidth,neuralNetWidth,1] params
@@ -111,7 +114,7 @@ neuralNet_Error q --> 6.469984678236639e-3
 
 main = do
   -- generate some random numbers as our initial parameters
-  let rs = map ((2*) - 1) (randoms (mkStdGen 3) :: [Double])
+  let rs = [-3.9266224455492296,6.522198990484406,-1.0021246933683658,3.8451427947456995,-0.9003822275833925,1.7836227701224396,-2.33006520900074,4.61729730375516,-1.1321482199498678,1.1599908891933983,-0.5540785702949831,-7.262251276454074,2.665411292987106,1.9308042179271059,-4.384320415419504,2.290415591998457,-1.1187299052383344,-0.7187059184160428,2.6589958433429075,-3.822721251249673e-2,-0.5395574604556627,0.2291361205535051,1.993314095745433,-0.5960245780843668,-0.8765835293344421,2.2186488620235743,-2.8343205979339756,0.2879342744843964,-1.5591082002061667,0.5183946478980096,-0.23127480392491637,1.2908510702352363,5.317397010909992,-3.0972498477575963,-2.1627614042870467,2.99283714806138,-0.5223557755704695] --map ((2*) - 1) (randoms (mkStdGen 3) :: [Double])
   
   -- run gradient descent
   let ps = neuralNet_gradient_descent (take numberOfParameters rs)
