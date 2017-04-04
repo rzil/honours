@@ -48,6 +48,9 @@ dId name x = D x (\i -> if i == name then 1 else 0)
 dConst :: Num a => a -> Dif e a
 dConst x = D x (const 0)
 
+-- Ruben added the read instance 4/4/17
+instance (Num a, Read a) => Read (Dif e a) where readsPrec d r = [(dConst a, b) | (a,b) <- readsPrec d r]
+
 -- I'm not sure about the next three, which discard information
 instance Show a => Show (Dif e a) where show    = show     .   dVal 
 instance Eq   a => Eq   (Dif e a) where (==)    = (==)    `on` dVal
