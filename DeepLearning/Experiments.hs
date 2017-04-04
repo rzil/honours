@@ -6,6 +6,8 @@ import Data.Numbers.Primes
 import Data.Matrix
 import Data.Dif
 
+instance Real a => Real (Dif e a) where toRational = toRational . dVal
+
 differentiable :: Num a => [a] -> [Dif Int a]
 differentiable zs = zipWith (\i z -> dId i z) [1..] zs
 
@@ -52,20 +54,17 @@ neuralNet params u v = (((transpose w2) * hiddenLayersOutput) + d) ! (1,1)
   w2 = fromList neuralNetWidth 1 w2_param
   d = fromList 1 1 d_param
 
-myFloor :: (Show b, Read a) => b -> a
-myFloor x = read (head (splitOn "." (show x)))
+myRound :: (Real a, Integral c) => a -> c
+myRound = round . fromRational . toRational
 
-myRound :: (Show b, Read a, Fractional b) => b -> a
-myRound x = myFloor (x+0.5)
-
-target :: (Floating a, Read a, Show a) => a -> a -> a
+target :: (Real t, Num u) => t -> t -> u
 target u v = let x = 4*u + v in if isPrime (myRound x) then 1 else 0
 
-neuralNet_Error :: (Floating a, Read a, Show a) => [a] -> a
+neuralNet_Error :: (Real a, Floating a) => [a] -> a
 neuralNet_Error params = sum [let (u,v) = (fromIntegral a,fromIntegral b) in ((neuralNet params u v) - (target u v))^2 / 2 | (a,b) <- inputSpace]
  where inputSpace = [(u,v) | u <- [0..3], v <- [0..3]]
 
-neuralNet_Error_Gradient :: (Floating a, Read a, Show a) => [a] -> [a]
+neuralNet_Error_Gradient :: (Real b, Floating b) => [b] -> [b]
 neuralNet_Error_Gradient params = map dVal (gradient neuralNet_Error params)
 ---
 
@@ -78,7 +77,7 @@ normalise :: Floating b => [b] -> [b]
 normalise xs = map (/ (sqrt n)) xs
  where n = dot xs xs
 
-neuralNet_update :: (Ord c, Floating c, Read c, Show c) => [c] -> [c]
+neuralNet_update :: (Real c, Floating c) => [c] -> [c]
 neuralNet_update params = zipWith (+) params (map (stepSize *) searchDirection)
  where
   -- the gradient at current point in parameter space
@@ -103,7 +102,7 @@ backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16))
 
 ------
 
-neuralNet_gradient_descent :: (Ord c, Floating c, Read c, Show c) => [c] -> [[c]]
+neuralNet_gradient_descent :: (Real c, Floating c) => [c] -> [[c]]
 neuralNet_gradient_descent startingParams = iterate neuralNet_update startingParams
 
 ------
