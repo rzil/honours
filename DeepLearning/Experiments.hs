@@ -17,7 +17,7 @@ neuralNetInputs :: Int
 neuralNetInputs = 2
 
 neuralNetWidth :: Int
-neuralNetWidth = 3
+neuralNetWidth = 4
 
 neuralNetDepth :: Int
 neuralNetDepth = 2
@@ -48,21 +48,6 @@ neuralNet params u v = (((transpose w2) * (fmap activation (w1 * (fmap activatio
   w2 = fromList neuralNetWidth 1 w2_param
   d = fromList 1 1 d_param
 
-{-
-neuralNet :: Floating a => [a] -> a -> a -> a
-neuralNet params u v = sum (zipWith (*) (zipWith3 (\x y z -> x + y + z) (zipWith (*) w00 (repeat u)) (zipWith (*) w01 (repeat v)) c) w1) + b
- where
-  [w00,w01,c,w1,[b]] = splitPlaces [neuralNetWidth,neuralNetWidth,neuralNetWidth,neuralNetWidth,1] params
--}
-
-{-
-neuralNet :: Floating a => [a] -> a -> a
-neuralNet params x = sum (zipWith (*) w2 (applyLayer w1 c1 (applyLayer w0 c0 (repeat x)))) + c2
- where
-  [w0,c0,w1,c1,w2,[c2]] = splitPlaces [neuralNetWidth,neuralNetWidth,neuralNetWidth,neuralNetWidth,neuralNetWidth,1] params
-  applyLayer w c xs = map activation (zipWith (+) (zipWith (*) w xs) c)
--}
-
 myFloor :: (Show b, Read a) => b -> a
 myFloor x = read (head (splitOn "." (show x)))
 
@@ -70,11 +55,11 @@ myRound :: (Show b, Read a, Fractional b) => b -> a
 myRound x = myFloor (x+0.5)
 
 target :: (Floating a, Read a, Show a) => a -> a -> a
-target u v = let x = 3*u + v in if isPrime (myRound x) then 1 else 0 --  3*u + v - 2*u*v
+target u v = let x = 4*u + v in if isPrime (myRound x) then 1 else 0
 
 neuralNet_Error :: (Floating a, Read a, Show a) => [a] -> a
 neuralNet_Error params = sum [let (u,v) = (fromIntegral a,fromIntegral b) in ((neuralNet params u v) - (target u v))^2 / 2 | (a,b) <- inputSpace]
- where inputSpace = [(u,v) | u <- [0..2], v <- [0..2]]
+ where inputSpace = [(u,v) | u <- [0..3], v <- [0..3]]
 
 neuralNet_Error_Gradient :: (Floating a, Read a, Show a) => [a] -> [a]
 neuralNet_Error_Gradient params = map dVal (gradient neuralNet_Error params)
@@ -121,13 +106,13 @@ neuralNet_gradient_descent startingParams = iterate neuralNet_update startingPar
 
 main = do
   -- generate some random numbers as our initial parameters
-  let rs = [-5.997964617436484,6.8366753807468905,1.9946181529853286,-2.0013185819246995,-3.072544454848253,3.1034310008887287,-5.979828742108006,-3.1902084692473425,-1.4136501174627154,1.2927066753777938,-0.7099211453394163,-2.0648259100507986,4.545574047629832,-1.210595301923914,-4.532966851592963,0.9353161955234404,-0.9619315229579541,-2.0069557079385962,-0.23942932061733338,0.2858828985321634,-0.17420719349960065,1.8978890423090384,5.705283980931233,1.7484994317561444,-3.2301006289511487]
+  let rs = [-3.9266224455492296,6.522198990484406,-1.0021246933683658,3.8451427947456995,-0.9003822275833925,1.7836227701224396,-2.33006520900074,4.61729730375516,-1.1321482199498678,1.1599908891933983,-0.5540785702949831,-7.262251276454074,2.665411292987106,1.9308042179271059,-4.384320415419504,2.290415591998457,-1.1187299052383344,-0.7187059184160428,2.6589958433429075,-3.822721251249673e-2,-0.5395574604556627,0.2291361205535051,1.993314095745433,-0.5960245780843668,-0.8765835293344421,2.2186488620235743,-2.8343205979339756,0.2879342744843964,-1.5591082002061667,0.5183946478980096,-0.23127480392491637,1.2908510702352363,5.317397010909992,-3.0972498477575963,-2.1627614042870467,2.99283714806138,-0.5223557755704695] --map ((2*) - 1) (randoms (mkStdGen 3) :: [Double])
   
   -- run gradient descent
   let ps = neuralNet_gradient_descent (take numberOfParameters rs)
   
   -- obtain one of the iterations of gradient descent
-  let p = (ps !! 1000)
+  let p = (ps !! 100)
   
   -- print the new parameters
   print p
