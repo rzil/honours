@@ -181,8 +181,10 @@ After training for around 100,000 iterations one gets some such as the following
 6.469984678236639e-3
 ```
 
-As one can see the error is in the order of ```1e-2``` which is quite acceptable.
+As one can see the error is in the order of `1e-2` which is quite acceptable.
 
 All source code files [here](https://github.com/rzil/honours/tree/master/DeepLearning).
 
-This file is [Literate Haskell Markdown](https://github.com/sol/markdown-unlit). Use `ghc -pgmL markdown-unlit --make -O2 PrimesNN.lhs` to compile.
+This file is [Literate Haskell Markdown](https://github.com/sol/markdown-unlit). Use
+`ghc -pgmL markdown-unlit --make -O2 PrimesNN.lhs`
+to compile.
