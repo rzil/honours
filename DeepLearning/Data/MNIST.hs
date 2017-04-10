@@ -117,9 +117,15 @@ testLabelsFileName = urlFileNameUnzipped testSetLabelsURL
 -- Functions exported by this module
 --
 
--- downloads the MNIST files and unzips them if they do not exist within current directory
-downloadData :: IO ()
-downloadData = sequence_ (map downloadAndUnzipIfNeeded [trainingSetImagesURL,trainingSetLabelsURL,testSetImagesURL,testSetLabelsURL])
+-- Take in directory path
+-- Create the directory if needed
+-- Change to that directory
+-- Downloads the MNIST files and unzips them if they do not exist within given directory
+downloadData :: String -> IO ()
+downloadData downloadDirectory = do
+  createDirectoryIfMissing True downloadDirectory
+  setCurrentDirectory downloadDirectory
+  sequence_ (map downloadAndUnzipIfNeeded [trainingSetImagesURL,trainingSetLabelsURL,testSetImagesURL,testSetLabelsURL])
 
 -- reads the MNIST training data and returns it
 readTrainingData :: IO (Int, Int, [([Word8], Int)])

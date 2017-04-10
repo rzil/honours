@@ -1,6 +1,6 @@
 module Main where
 
-import MNIST
+import Data.MNIST
 import Data.Array
 import System.Process
 
@@ -15,7 +15,7 @@ imageFromData rows columns imageData = generateImage (\x y -> imageDataUnpacked 
 
 test :: Int -> IO ()
 test idx = do
-  downloadData
+  downloadData "MNIST_Data"
   (rows,columns,labelledData) <- readTrainingData
   let images = map (imageFromData rows columns . fst) labelledData
   let labels = map snd labelledData
