@@ -11,12 +11,10 @@ module MNIST(downloadData,readTrainingData,readTestData) where
 import qualified Data.ByteString.Lazy as BL
 import Data.Binary.Get
 import Data.Word
-import Data.Array
 import Data.List.Split (splitOn)
 import System.Process
 import System.Directory
 import Control.Exception
-import Codec.Picture
 
 --
 -- Deserialising image data
@@ -44,17 +42,6 @@ deserialiseAllImageData = do
   let getImageData = deserialiseImageData (fromIntegral numberOfRows) (fromIntegral numberOfColumns)
   imageData <- sequence (take (fromIntegral numberOfImages) (repeat getImageData))
   return (fromIntegral numberOfRows,fromIntegral numberOfColumns,imageData)
-
-imageFromData :: Pixel px => Int -> Int -> [px] -> Image px
-imageFromData rows columns imageData = generateImage (\x y -> imageDataUnpacked ! (y*columns + x)) columns rows
- where
-  imageByteCount = rows * columns
-  imageDataUnpacked = listArray (0,imageByteCount-1) imageData
-
-deserialiseAllImages :: Get [Image Word8]
-deserialiseAllImages = do
-  (rows,columns,imageData) <- deserialiseAllImageData
-  return (map (imageFromData rows columns) imageData)
 
 --
 -- Deserialising label data
@@ -153,21 +140,3 @@ readTestData = do
   let labels = map fromIntegral (runGet deserialiseAllLabels testLabelsFile)
   let imageLabelPairs = zip imageData labels
   return (rows,columns,imageLabelPairs)
-
---
--- A test function
---
-
-test :: Int -> IO ()
-test idx = do
-  downloadData
-  trainingImagesFile <- BL.readFile trainingImagesFileName
-  let images = runGet deserialiseAllImages trainingImagesFile
-  trainingLabelsFile <- BL.readFile trainingLabelsFileName
-  let labels = map fromIntegral (runGet deserialiseAllLabels trainingLabelsFile)
-  
-  let imageLabelPairs = zip labels images
-  
-  writePng "test.png" (images !! idx)
-  readProcess "open" ["test.png"] ""
-  print (labels !! idx)
