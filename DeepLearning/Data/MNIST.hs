@@ -6,7 +6,7 @@ Author: Ruben Zilibowitz
 Date: 10/4/17
 -}
 
-module MNIST(downloadData,readTrainingData,readTestData) where
+module Data.MNIST(downloadData,readTrainingData,readTestData) where
 
 import qualified Data.ByteString.Lazy as BL
 import Data.Binary.Get
