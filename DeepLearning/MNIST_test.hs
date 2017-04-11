@@ -17,8 +17,8 @@ test :: Int -> IO ()
 test idx = do
   downloadData "MNIST_Data"
   (rows,columns,labelledData) <- readTrainingData
-  let images = map (imageFromData rows columns . fst) labelledData
-  let labels = map snd labelledData
+  let images = map (imageFromData rows columns . snd) labelledData
+  let labels = map fst labelledData
   writePng "test.png" (images !! idx)
   readProcess "open" ["test.png"] ""
   print (labels !! idx)

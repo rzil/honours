@@ -128,21 +128,21 @@ downloadData downloadDirectory = do
   sequence_ (map downloadAndUnzipIfNeeded [trainingSetImagesURL,trainingSetLabelsURL,testSetImagesURL,testSetLabelsURL])
 
 -- reads the MNIST training data and returns it
-readTrainingData :: IO (Int, Int, [([Word8], Int)])
+readTrainingData :: IO (Int, Int, [(Int, [Word8])])
 readTrainingData = do
   trainingImagesFile <- BL.readFile trainingImagesFileName
   let (rows,columns,imageData) = runGet deserialiseAllImageData trainingImagesFile
   trainingLabelsFile <- BL.readFile trainingLabelsFileName
   let labels = map fromIntegral (runGet deserialiseAllLabels trainingLabelsFile)
-  let imageLabelPairs = zip imageData labels
+  let imageLabelPairs = zip labels imageData
   return (rows,columns,imageLabelPairs)
 
 -- reads the MNIST test data and returns it
-readTestData :: IO (Int, Int, [([Word8], Int)])
+readTestData :: IO (Int, Int, [(Int, [Word8])])
 readTestData = do
   testImagesFile <- BL.readFile testImagesFileName
   let (rows,columns,imageData) = runGet deserialiseAllImageData testImagesFile
   testLabelsFile <- BL.readFile testLabelsFileName
   let labels = map fromIntegral (runGet deserialiseAllLabels testLabelsFile)
-  let imageLabelPairs = zip imageData labels
+  let imageLabelPairs = zip labels imageData
   return (rows,columns,imageLabelPairs)
