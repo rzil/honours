@@ -1,19 +1,33 @@
+{-# LANGUAGE TypeOperators #-}
 module ImagesNN where
 
 import Data.Random.Normal
 import Data.List.Split
 import Data.Matrix
 
-import Data.Dif
+import Data.Array.Accelerate as A
+import Data.Accelerate.Dif
 import Data.MNIST
 
-differentiable :: Num a => [a] -> [Dif Int a]
-differentiable zs = zipWith (\i z -> dId i z) [1..] zs
+import qualified Data.Array.Accelerate.LLVM.Native as CPU
+import qualified Data.Array.Accelerate.Interpreter as Interp
 
-gradient :: Num a => ([Dif Int a] -> Dif Int b) -> [a] -> [Dif Int b]
-gradient f params = [deriv y i | i <- [1 .. (length params)]]
- where y = f (differentiable params)
+oneToN :: Exp Int -> Acc (Array (Z :. Int) Double)
+oneToN n = generate (index1 n) (A.fromIntegral . shapeSize)
 
+dId_ = lift1 (dId :: Exp Double -> Dif (Exp Double))
+dConst_ = lift1 (dConst :: Exp Double -> Dif (Exp Double))
+
+grad :: (Elt b, Shape t) => (Acc (Array t (Dif Double)) -> Exp b) -> Acc (Array t Double) -> Acc (Array t b)
+grad f parameters = imap (\jdx _ -> f (imap (\idx p -> ifThenElse (shapeSize idx A.== shapeSize jdx) (dId_ p) (dConst_ p)) parameters)) parameters
+
+-- nested data parallelism crash
+crash = grad (the . A.sum) (oneToN 10)
+
+--gradient :: Num a => (A.Acc (A.Vector (Dif a)) -> Exp (Dif t)) -> A.Acc (A.Vector a) -> A.Acc (A.Vector a)
+--gradient f params = [let dParams = zipWith (\p k -> if k == i then dId p else dConst p) params (enumFromN (constant (Z:.5)) 1) in deriv (f dParams) | i <- [1 .. (length params)]]
+
+{-}
 numberOfClasses = 6
 imageDataLength = 28 * 28
 
@@ -52,8 +66,8 @@ linearModel_Error :: Floating a => [(Int, [a])] -> [a] -> a
 linearModel_Error trainingData params = (sum [crossEntropy (linearModel params imageData) (target label) | (label,imageData) <- trainingData]) / trainingDataSize
  where trainingDataSize = fromIntegral (length trainingData)
 
-linearModel_Error_Gradient :: Floating b => [(Int, [b])] -> [b] -> [b]
-linearModel_Error_Gradient trainingData params = map dVal (gradient (linearModel_Error constantTrainingData) params)
+linearModel_Error_Gradient :: Floating t => [(Int, [t])] -> [t] -> [t]
+linearModel_Error_Gradient trainingData params = gradient (linearModel_Error constantTrainingData) params
  where constantTrainingData = map (fmap (map dConst)) trainingData
 
 dot :: Num a => [a] -> [a] -> a
@@ -119,3 +133,4 @@ main = do
 
 --  print $ linearModel_Error normalisedTrainingData (ps !! 0)
 --  print $ linearModel_Error normalisedTrainingData (ps !! 1)
+-}
