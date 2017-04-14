@@ -2,9 +2,7 @@
 module Data.Array.Accelerate.Dif where
 
 import Prelude as P
-
 import Data.Array.Accelerate as A
-import qualified Data.Array.Accelerate.Interpreter as Interp
 
 
 type Matrix a = Array DIM2 a
@@ -14,26 +12,6 @@ type Activation a = (Exp a -> Exp a, Exp a -> Exp a)
 data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
 
 instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
-
---
-testInput :: Vector Double
-testInput = fromList (Z:.5) [0.1,0.2..]
-
-testMatrix :: Matrix Double
-testMatrix = fromList (Z:.3:.5) [(-1)..]
-
-testVector :: Vector Double
-testVector = fromList (Z:.3) [1..]
-
-testActivation :: Activation Double
-testActivation = (id, id)
-
-testLayer :: Dif -> Dif
-testLayer = layerWRTParameters (use testMatrix) (use testVector) testActivation
-
-testNet :: Int -> Dif
-testNet i = (dCrossEntropy (use (oneHotEncoding i 3)). dSoftmax . testLayer) (dConst (use testInput))
---
 
 layerWRTParameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Activation Double -> Dif -> Dif
 layerWRTParameters a b (f, f') (D x _) = D (A.map f y) jacobian
@@ -85,6 +63,18 @@ oneHotEncoding k n = fromList (Z :. n) [if i P.== k then 1 else 0 | i <- [0..n]]
 
 dCrossEntropy :: Acc (Vector Double) -> Dif -> Dif
 dCrossEntropy p = dLinear (rowMatrix (A.map negate p)) . dActivation (log,recip)
+
+-- dCrossEntropyOneHotEncoding i (D x x')
+--  is equivalent to
+-- dCrossEntropy (use (oneHotEncoding i (A.length x)))
+--  but this one is more efficient
+dCrossEntropyOneHotEncoding :: Exp Int -> Dif -> Dif
+dCrossEntropyOneHotEncoding i (D x x') = D y y'
+ where
+  y  = reshape (lift (Z:.(1::Int))) (unit (negate (log q)))
+  y' = rowMatrix (A.map (neg_recip_q *) (slice x' (lift (Z:.i:.All))))
+  q = x A.! (lift (Z:.i))
+  neg_recip_q = negate (recip q)
 
 dSoftmax :: Dif -> Dif
 dSoftmax = softmax >-< (softmaxJacobian . softmax)
