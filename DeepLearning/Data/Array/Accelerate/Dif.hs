@@ -10,23 +10,29 @@ import qualified Data.Array.Accelerate.Interpreter as Interp
 type Matrix a = Array DIM2 a
 type Activation a = (Exp a -> Exp a, Exp a -> Exp a)
 
+-- the derivative should be a map from parameter space to the space of the value
+data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
+
+instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
+
 --
+testInput :: Vector Double
+testInput = fromList (Z:.5) [0.1,0.2..]
+
 testMatrix :: Matrix Double
-testMatrix = fromList (Z:.3:.3) [0..]
+testMatrix = fromList (Z:.3:.5) [(-1)..]
 
 testVector :: Vector Double
 testVector = fromList (Z:.3) [1..]
 
 testActivation :: Activation Double
-testActivation = (log, recip)
+testActivation = (id, id)
 
 testLayer :: Dif -> Dif
-testLayer = layerWRTInput (use testMatrix) (use testVector) testActivation
+testLayer = layerWRTParameters (use testMatrix) (use testVector) testActivation
 
-testInput :: Vector Double
-testInput = fromList (Z:.3) [4,5,6]
-
-test = testLayer (dId (use testInput))
+testNet :: Int -> Dif
+testNet i = (dCrossEntropy (use (oneHotEncoding i 3)). dSoftmax . testLayer) (dConst (use testInput))
 --
 
 layerWRTParameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Activation Double -> Dif -> Dif
@@ -62,7 +68,23 @@ dActivation (f,d) (D x x') = D (A.map f x) (imap transform x')
   dx = A.map d x
 -}
 
+-- converts a vector to a column matrix
+columnMatrix :: Elt e => Acc (Vector e) -> Acc (Matrix e)
+columnMatrix vector = reshape (lift (Z:.n:.(1 :: Int))) vector
+ where (Z :. n) = unlift (shape vector) :: Z :. Exp Int
+
+-- converts a vector to a column matrix
+rowMatrix :: Elt e => Acc (Vector e) -> Acc (Matrix e)
+rowMatrix vector = reshape (lift (Z:.(1 :: Int):.n)) vector
+ where (Z :. n) = unlift (shape vector) :: Z :. Exp Int
+
 -- http://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
+
+oneHotEncoding :: (Elt e, P.Num e) => Int -> Int -> Vector e
+oneHotEncoding k n = fromList (Z :. n) [if i P.== k then 1 else 0 | i <- [0..n]]
+
+dCrossEntropy :: Acc (Vector Double) -> Dif -> Dif
+dCrossEntropy p = dLinear (rowMatrix (A.map negate p)) . dActivation (log,recip)
 
 dSoftmax :: Dif -> Dif
 dSoftmax = softmax >-< (softmaxJacobian . softmax)
@@ -70,13 +92,10 @@ dSoftmax = softmax >-< (softmaxJacobian . softmax)
 -- more efficiently
 --dSoftmax (D x x') = let smx = softmax x in D smx (softmaxJacobian smx)
 
-mean :: Acc (Vector Double) -> Exp Double
-mean vec = (the (A.sum vec)) / (A.fromIntegral (A.length vec))
-
 softmax :: Acc (Vector Double) -> Acc (Vector Double)
 softmax vec = A.map ((/ divisor) . exp) vec_reduced
  where
-  d = negate (mean vec)
+  d = negate (the (A.maximum vec))
   vec_reduced = A.map (d +) vec
   divisor = the (A.sum (A.map exp vec_reduced))
 
@@ -91,9 +110,6 @@ softmaxJacobian softmaxedVector = generate (index2 n n) generator
   ds j i = (s i)*((kroneckerDelta i j) - (s j))
   generator sh = let Z :. r :. c = unlift sh :: (Z :. Exp Int :. Exp Int) in ds r c
   n = A.length softmaxedVector
-
--- the derivative should be a map from parameter space to the space of the value
-data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
 
 shapeIsSquare :: Exp ((Z :. Int) :. Int) -> Exp Int
 shapeIsSquare sh = let Z :. r :. c = unlift sh in (ifThenElse (r A.== c) 1 0)
@@ -116,8 +132,6 @@ dId x = D x (identityN (A.length x))
 dConst :: Acc (Vector Double) -> Dif
 dConst x = D x (zeroN (A.length x))
 
-instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
-
 -- matrix multiplication using Accelerate
 mmMult :: A.Num a => Acc (Matrix a) -> Acc (Matrix a) -> Acc (Matrix a)
 mmMult arr brr = result
@@ -130,28 +144,27 @@ mmMult arr brr = result
   (Z :. rowsA :. colsA) = unlift (shape arr) :: Z :. Exp Int :. Exp Int
   (Z :. rowsB :. colsB) = unlift (shape brr) :: Z :. Exp Int :. Exp Int
 
+-- matrix/vector multiplication using Accelerate
+mvMult :: A.Num a => Acc (Matrix a) -> Acc (Vector a) -> Acc (Vector a)
+mvMult matrix vector = reshape (lift (Z :. rows)) result
+ where
+  result = matrix !*! (columnMatrix vector)
+  (Z :. rows :. _) = unlift (shape matrix) :: Z :. Exp Int :. Exp Int
+
+-- matrix multiplication operator
 infix 6 !*!
 (!*!) :: A.Num a => Acc (Matrix a) -> Acc (Matrix a) -> Acc (Matrix a)
 (!*!) = mmMult
 
--- matrix addition using Accelerate
-mmAdd arr brr = A.zipWith (+) arr brr
-
--- matrix subtraction using Accelerate
-mmMinus arr brr = A.zipWith (-) arr brr
-
--- matrix-vector multiplication using Accelerate
+-- matrix-vector multiplication operator
+infixr 7 !*
 (!*) :: A.Num a => Acc (Matrix a) -> Acc (Vector a) -> Acc (Vector a)
-(!*) matrix vector = reshape (lift (Z :. mCols)) result
- where
-  result = matrix !*! columnMatrix
-  columnMatrix = reshape (lift (Z :. vCols :. (1::Int))) vector
-  (Z :. vCols) = unlift (shape vector) :: Z :. Exp Int
-  (Z :. mCols :. _) = unlift (shape matrix) :: Z :. Exp Int :. Exp Int
+(!*) = mvMult
 
 -- vector addition using Accelerate
+infix 5 ^+^
 (^+^) :: A.Num a => Acc (Vector a) -> Acc (Vector a) -> Acc (Vector a)
-(^+^) vectorA vectorB = A.zipWith (+) vectorA vectorB
+(^+^) = A.zipWith (+)
 
 -- chain rule
 infix 0 >-<
