@@ -3,12 +3,6 @@ module Data.Array.Accelerate.Dif where
 
 import Prelude as P
 
-import Data.Function (on)
-import Data.NumInstances ()
-
---import Data.Random.Normal
-import Debug.Trace
-
 import Data.Array.Accelerate as A
 import qualified Data.Array.Accelerate.Interpreter as Interp
 
@@ -67,6 +61,36 @@ dActivation (f,d) (D x x') = D (A.map f x) (imap transform x')
   transform sh e = let Z :. row :. _ = unlift sh :: (Z :. Exp Int :. Exp Int) in (dx A.! (lift (Z:.row))) * e
   dx = A.map d x
 -}
+
+-- http://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
+
+dSoftmax :: Dif -> Dif
+dSoftmax = softmax >-< (softmaxJacobian . softmax)
+
+-- more efficiently
+--dSoftmax (D x x') = let smx = softmax x in D smx (softmaxJacobian smx)
+
+mean :: Acc (Vector Double) -> Exp Double
+mean vec = (the (A.sum vec)) / (A.fromIntegral (A.length vec))
+
+softmax :: Acc (Vector Double) -> Acc (Vector Double)
+softmax vec = A.map ((/ divisor) . exp) vec_reduced
+ where
+  d = negate (mean vec)
+  vec_reduced = A.map (d +) vec
+  divisor = the (A.sum (A.map exp vec_reduced))
+
+kroneckerDelta :: A.Num a => Exp Int -> Exp Int -> Exp a
+kroneckerDelta i j = ifThenElse (i A.== j) 1 0
+
+softmaxJacobian :: Acc (Vector Double) -> Acc (Matrix Double)
+softmaxJacobian softmaxedVector = generate (index2 n n) generator
+ where
+  s :: Exp Int -> Exp Double
+  s i = softmaxedVector A.! (lift (Z :. i))
+  ds j i = (s i)*((kroneckerDelta i j) - (s j))
+  generator sh = let Z :. r :. c = unlift sh :: (Z :. Exp Int :. Exp Int) in ds r c
+  n = A.length softmaxedVector
 
 -- the derivative should be a map from parameter space to the space of the value
 data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
