@@ -1,12 +1,22 @@
 {-# LANGUAGE TypeOperators, FlexibleContexts #-}
+
+{-
+Author: Ruben Zilibowitz
+Date: 14 April 2017
+Inspired by ideas and code by Conal Elliot
+http://conal.net/blog/posts/beautiful-differentiation
+
+Here we are concerned with concurrency and we are using Accelerate to achieve
+fast performance.
+-}
+
 module Data.Array.Accelerate.Dif where
 
 import Prelude as P
 import Data.Array.Accelerate as A
 
-
 type Matrix a = Array DIM2 a
-type Activation a = (Exp a -> Exp a, Exp a -> Exp a)
+type Activation a = (Exp a -> Exp a, Exp a -> Exp a)   -- a function paired with its derivative
 
 -- the derivative should be a map from parameter space to the space of the value
 data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
@@ -102,7 +112,7 @@ softmaxJacobian softmaxedVector = generate (index2 n n) generator
   n = A.length softmaxedVector
 
 shapeIsSquare :: Exp ((Z :. Int) :. Int) -> Exp Int
-shapeIsSquare sh = let Z :. r :. c = unlift sh in (ifThenElse (r A.== c) 1 0)
+shapeIsSquare sh = let Z :. r :. c = unlift sh in kroneckerDelta r c
 
 diagonal :: Acc (Vector Double) -> Acc (Matrix Double)
 diagonal xs = generate (index2 n n) diagonalGenerator
