@@ -32,24 +32,52 @@ jacobian_wrt_matrix_multiply rows x = generate (index2 rows (rows * n)) generato
   n = A.length x
   generator sh = let Z :. r :. c = unlift sh in ifThenElse (r*n A.<= c A.&& c A.< (r+1)*n) (x A.! (lift (Z:.(c-r*n)))) 0
 
-dAffine_wrt_parameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Acc (Vector Double) -> Dif
-dAffine_wrt_parameters a b x = D (b ^+^ (a !* x)) ((jacobian_wrt_matrix_multiply n x) A.++ (identityN n))
+-- dAffine_wrt_parameters computes a*x + b, where
+-- a is a matrix
+-- x is a column vector
+-- b is a column vector
+-- the return value is the affine transform a*x + b
+-- together with a matrix representing the jacobian w.r.t. the elements in a and b
+-- NB: This is not the derivative w.r.t. x.
+dAffine_wrt_parameters :: Acc (Vector Double) -> Acc (Matrix Double) -> Acc (Vector Double) -> Dif
+dAffine_wrt_parameters b a x = D (b ^+^ (a !* x)) ((jacobian_wrt_matrix_multiply n x) A.++ (identityN n))
  where n = A.length b
 
+-- dAffine computes a*x + b, where
+-- a is a matrix
+-- x is a column vector
+-- b is a column vector
+-- the return value is the affine transform a*x + b
+-- together with a matrix representing the jacobian w.r.t. x
 dAffine :: Acc (Vector Double) -> Acc (Matrix Double) -> Dif -> Dif
 dAffine b a = (dTranslate b) . (dLinear a)
 
+-- dLinear computes a*x, where
+-- a is a matrix
+-- x is a column vector
+-- the return value is a*x
+-- together with the jacobian w.r.t x, which for a linear
+-- transformation is just a.
 dLinear :: Acc (Matrix Double) -> Dif -> Dif
 dLinear matrix = (matrix !*) >-< (const matrix)
 
+-- dTranslate computes b + x
+-- b is a vector
+-- x is a vector
+-- the return value is b + x
+-- together with a matrix representing the jacobian w.r.t. x,
+-- which happens to be the identity.
 dTranslate :: Acc (Vector Double) -> Dif -> Dif
 dTranslate vector = (vector ^+^) >-< (const (identityN (A.length vector)))
 
 -- more efficiently
 --dTranslate vector (D x x') = D (vector ^+^ x) x'
 
+-- dActivation takes a differentiable function and its derivative (f,f')
+-- it applies this function f to every element in the vector x.
+-- It returns the result, together with the jacobian matrix w.r.t. x.
 dActivation :: Activation Double -> Dif -> Dif
-dActivation (f,d) = (A.map f) >-< (diagonal . A.map d)
+dActivation (f,f') = (A.map f) >-< (diagonal . A.map f')
 
 -- more efficiently
 {-
@@ -89,6 +117,8 @@ dCrossEntropyOneHotEncoding i (D x x') = D y y'
   q = x A.! (lift (Z:.i))
   neg_recip_q = negate (recip q)
 
+-- computes the softmax function of the input
+-- and the jacobian.
 dSoftmax :: Dif -> Dif
 dSoftmax = softmax >-< (softmaxJacobian . softmax)
 
@@ -123,15 +153,20 @@ diagonal xs = generate (index2 n n) diagonalGenerator
   diagonalGenerator sh = let Z :. r :. c = unlift sh in (ifThenElse (r A.== c) (xs A.! (lift (Z:.r))) 0)
   n = A.length xs
 
+-- identity matrix of size n * n
 identityN :: Exp Int -> Acc (Matrix Double)
 identityN n = generate (index2 n n) (A.fromIntegral . shapeIsSquare)
 
+-- zero matrix of size n * n
 zeroN :: Exp Int -> Acc (Matrix Double)
 zeroN n = fill (index2 n n) 0
 
+-- Take a vector and makes and assumes the derivative
+-- w.r.t. every element is 1.
 dId :: Acc (Vector Double) -> Dif
 dId x = D x (identityN (A.length x))
 
+-- Take a vector of constants and return differentiable type
 dConst :: Acc (Vector Double) -> Dif
 dConst x = D x (zeroN (A.length x))
 
