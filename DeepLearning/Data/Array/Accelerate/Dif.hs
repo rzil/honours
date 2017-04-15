@@ -23,18 +23,17 @@ data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
 
 instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
 
-layerWRTParameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Activation Double -> Dif -> Dif
-layerWRTParameters a b (f, f') (D x _) = D (A.map f y) jacobian
+layerWRTParameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Dif -> Dif
+layerWRTParameters a b (D x _) = D y jacobian
  where
   y = b ^+^ (a !* x)
   rows = A.length b
   n = A.length x
-  f'y = A.map f' y
-  jacobian = generate (index2 rows (rows * n)) jacobianGenerator A.++ diagonal f'y
-  jacobianGenerator sh = let Z :. r :. c = unlift sh in ifThenElse (r*n A.<= c A.&& c A.< (r+1)*n) ((x A.! (lift (Z:.(c-r*n)))) * f'y A.! (lift (Z:.r))) 0
+  jacobian = generate (index2 rows (rows * n)) jacobianGenerator A.++ identityN rows
+  jacobianGenerator sh = let Z :. r :. c = unlift sh in ifThenElse (r*n A.<= c A.&& c A.< (r+1)*n) (x A.! (lift (Z:.(c-r*n)))) 0
 
-layerWRTInput :: Acc (Matrix Double) -> Acc (Vector Double) -> Activation Double -> Dif -> Dif
-layerWRTInput a b f = (dActivation f) . (dTranslate b) . (dLinear a)
+layerWRTInput :: Acc (Matrix Double) -> Acc (Vector Double) -> Dif -> Dif
+layerWRTInput a b = (dTranslate b) . (dLinear a)
 
 dLinear :: Acc (Matrix Double) -> Dif -> Dif
 dLinear matrix = (matrix !*) >-< (const matrix)
