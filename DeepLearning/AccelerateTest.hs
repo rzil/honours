@@ -28,12 +28,12 @@ testVector = fromList (Z:.q) (mkNormals' (0,1) 3)
 --testActivation :: Activation Double
 --testActivation = (id, const 1)
 
-testLayer :: Dif -> Dif
-testLayer = layerWRTParameters (use testMatrix) (use testVector)
+testLayer :: Acc (Vector Double) -> Dif
+testLayer = dAffine_wrt_parameters (use testMatrix) (use testVector)
 
 testNet :: Int -> Dif
---testNet i = (dCrossEntropy (use (oneHotEncoding i q)). dSoftmax . testLayer) (dConst (use testInput))
-testNet i = (dCrossEntropyOneHotEncoding (constant i) . dSoftmax . testLayer) (dConst (use testInput))
+--testNet i = (dCrossEntropy (use (oneHotEncoding i q)). dSoftmax . testLayer) (use testInput)
+testNet i = (dCrossEntropyOneHotEncoding (constant i) . dSoftmax . testLayer) (use testInput)
 --
 
 --run = Interp.run

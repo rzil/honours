@@ -23,17 +23,21 @@ data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
 
 instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
 
-layerWRTParameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Dif -> Dif
-layerWRTParameters a b (D x _) = D y jacobian
- where
-  y = b ^+^ (a !* x)
-  rows = A.length b
-  n = A.length x
-  jacobian = generate (index2 rows (rows * n)) jacobianGenerator A.++ identityN rows
-  jacobianGenerator sh = let Z :. r :. c = unlift sh in ifThenElse (r*n A.<= c A.&& c A.< (r+1)*n) (x A.! (lift (Z:.(c-r*n)))) 0
+matrixDimensions :: Elt e => Acc (Matrix e) -> (Exp Int, Exp Int)
+matrixDimensions matrix = let Z :. rows :. columns = unlift (shape matrix) in (rows,columns)
 
-layerWRTInput :: Acc (Matrix Double) -> Acc (Vector Double) -> Dif -> Dif
-layerWRTInput a b = (dTranslate b) . (dLinear a)
+jacobian_wrt_matrix_multiply :: A.Num a => Exp Int -> Acc (Vector a) -> Acc (Matrix a)
+jacobian_wrt_matrix_multiply rows x = generate (index2 rows (rows * n)) generator
+ where
+  n = A.length x
+  generator sh = let Z :. r :. c = unlift sh in ifThenElse (r*n A.<= c A.&& c A.< (r+1)*n) (x A.! (lift (Z:.(c-r*n)))) 0
+
+dAffine_wrt_parameters :: Acc (Matrix Double) -> Acc (Vector Double) -> Acc (Vector Double) -> Dif
+dAffine_wrt_parameters a b x = D (b ^+^ (a !* x)) ((jacobian_wrt_matrix_multiply n x) A.++ (identityN n))
+ where n = A.length b
+
+dAffine :: Acc (Vector Double) -> Acc (Matrix Double) -> Dif -> Dif
+dAffine b a = (dTranslate b) . (dLinear a)
 
 dLinear :: Acc (Matrix Double) -> Dif -> Dif
 dLinear matrix = (matrix !*) >-< (const matrix)
@@ -140,15 +144,15 @@ mmMult arr brr = result
   trr = transpose brr
   arrRepl = A.replicate (lift (Z :. All   :. colsB :. All)) arr
   brrRepl = A.replicate (lift (Z :. rowsA :. All   :. All)) trr
-  (Z :. rowsA :. colsA) = unlift (shape arr) :: Z :. Exp Int :. Exp Int
-  (Z :. rowsB :. colsB) = unlift (shape brr) :: Z :. Exp Int :. Exp Int
+  (rowsA,colsA) = matrixDimensions arr
+  (rowsB,colsB) = matrixDimensions brr
 
 -- matrix/vector multiplication using Accelerate
 mvMult :: A.Num a => Acc (Matrix a) -> Acc (Vector a) -> Acc (Vector a)
 mvMult matrix vector = reshape (lift (Z :. rows)) result
  where
   result = matrix !*! (columnMatrix vector)
-  (Z :. rows :. _) = unlift (shape matrix) :: Z :. Exp Int :. Exp Int
+  (rows,_) = matrixDimensions matrix
 
 -- matrix multiplication operator
 infix 6 !*!
