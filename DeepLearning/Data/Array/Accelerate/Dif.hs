@@ -26,6 +26,15 @@ instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
 matrixDimensions :: Elt e => Acc (Matrix e) -> (Exp Int, Exp Int)
 matrixDimensions matrix = let Z :. rows :. columns = unlift (shape matrix) in (rows,columns)
 
+-- inefficient way to do neural net
+-- unless GHC does some clever caching of sub-expression results
+neuralNet :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> [Acc (Vector Double) -> Dif]
+neuralNet (b:bs) (a:as) f = P.map ((dAffine b a) .) (nn bs as f)
+
+nn :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> [Acc (Vector Double) -> Dif]
+nn [] [] _ = []
+nn (b:bs) (a:as) f = (dActivation f) . (dAffine_wrt_parameters b a) : P.map (((dActivation f) . (dAffine b a)) .) (nn bs as f)
+
 jacobian_wrt_matrix_multiply :: A.Num a => Exp Int -> Acc (Vector a) -> Acc (Matrix a)
 jacobian_wrt_matrix_multiply rows x = generate (index2 rows (rows * n)) generator
  where
