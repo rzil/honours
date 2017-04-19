@@ -26,14 +26,20 @@ instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
 matrixDimensions :: Elt e => Acc (Matrix e) -> (Exp Int, Exp Int)
 matrixDimensions matrix = let Z :. rows :. columns = unlift (shape matrix) in (rows,columns)
 
--- inefficient way to do neural net
--- unless GHC does some clever caching of sub-expression results
-neuralNet :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> [Acc (Vector Double) -> Dif]
-neuralNet (b:bs) (a:as) f = P.map ((dAffine b a) .) (nn bs as f)
+neuralNet :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> Acc (Vector Double) -> Dif
+neuralNet (b:bs) (a:as) f x = let py = p (dVal y) in D (dVal py) (deriv py A.++ (deriv (q y)))
+ where
+  y = nn bs as f x
+  p = dAffine_wrt_parameters b a
+  q = dAffine b a
 
-nn :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> [Acc (Vector Double) -> Dif]
-nn [] [] _ = []
-nn (b:bs) (a:as) f = (dActivation f) . (dAffine_wrt_parameters b a) : P.map (((dActivation f) . (dAffine b a)) .) (nn bs as f)
+nn :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> Acc (Vector Double) -> Dif
+nn [b] [a] f x = ((dActivation f) . (dAffine_wrt_parameters b a)) x
+nn (b:bs) (a:as) f x = let py = p (dVal y) in D (dVal py) (deriv py A.++ (deriv (q y)))
+ where
+  y = nn bs as f x
+  p = (dActivation f) . (dAffine_wrt_parameters b a)
+  q = (dActivation f) . (dAffine b a)
 
 jacobian_wrt_matrix_multiply :: A.Num a => Exp Int -> Acc (Vector a) -> Acc (Matrix a)
 jacobian_wrt_matrix_multiply rows x = generate (index2 rows (rows * n)) generator
@@ -95,6 +101,9 @@ dActivation (f,d) (D x x') = D (A.map f x) (imap transform x')
   transform sh e = let Z :. row :. _ = unlift sh :: (Z :. Exp Int :. Exp Int) in (dx A.! (lift (Z:.row))) * e
   dx = A.map d x
 -}
+
+dSquareError :: Exp Double -> Dif -> Dif
+dSquareError a = dActivation (\x -> (x - a) P.^ 2,\x -> 2 * (x - a))
 
 -- converts a vector to a column matrix
 columnMatrix :: Elt e => Acc (Vector e) -> Acc (Matrix e)
@@ -217,3 +226,7 @@ infix 5 ^+^
 infix 0 >-<
 (>-<) :: (Acc (Vector Double) -> Acc (Vector Double)) -> (Acc (Vector Double) -> Acc (Matrix Double)) -> Dif -> Dif
 f >-< d = \ (D u u') -> D (f u) ((d u) !*! u')
+
+instance P.Num Dif where
+  (D x x') + (D y y') = D (x ^+^ y) (A.zipWith (+) x' y')
+  negate (D x x') = D (A.map negate x) (A.map negate x')
