@@ -44,7 +44,7 @@ neuralNetLogistic bs as x = neuralNet bs as (logistic,logisticDerivative) x
 target u v = (u + 2*v) - 0.5
 
 neuralNetError :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> (A.Exp Double, A.Acc (A.Vector Double))
-neuralNetError bs as = (y A.! (A.lift (A.Z A.:. (0::Int))), A.slice y' (A.lift (A.Z A.:. (0::Int) A.:. A.All)))
+neuralNetError bs as = (A.the (A.reshape (A.lift A.Z) y),A.reshape (A.lift (A.Z A.:. (A.constant numberOfParameters))) y')
  where
   input u v = A.fromList (A.Z A.:. (2::Int)) [u,v]
   D y y' = foldl1 difAdd [(dSquareError (A.constant (target u v)) . (neuralNetLogistic bs as)) (A.use (input u v)) | u <- [0::Double,1,2,3], v <- [0::Double,1,2,3]]
