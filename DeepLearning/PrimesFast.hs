@@ -1,4 +1,4 @@
-module PrimesFast where
+module Main where
 
 import Data.Random.Normal
 import Data.List.Split
@@ -58,20 +58,20 @@ normalise xs = A.map (/ (sqrt n)) xs
 
 bsas xs = ([b2,b1,b0],[a2,a1,a0])
  where
-  a0_start = 0
-  a0_size = neuralNetInputs * neuralNetWidth
-  b0_start = a0_start + a0_size
-  b0_size = neuralNetWidth
+  a2_start = 0
+  a2_size = neuralNetOutputs * neuralNetWidth
+  b2_start = a2_start + a2_size
+  b2_size = neuralNetOutputs
   
-  a1_start = b0_start + b0_size
+  a1_start = b2_start + b2_size
   a1_size = neuralNetWidth * neuralNetWidth
   b1_start = a1_start + a1_size
   b1_size = neuralNetWidth
   
-  a2_start = b1_start + b1_size
-  a2_size = neuralNetOutputs * neuralNetWidth
-  b2_start = a2_start + a2_size
-  b2_size = neuralNetOutputs
+  a0_start = b1_start + b1_size
+  a0_size = neuralNetInputs * neuralNetWidth
+  b0_start = a0_start + a0_size
+  b0_size = neuralNetWidth
   
   a0 = A.reshape (A.lift (A.Z A.:. neuralNetWidth A.:. neuralNetInputs)) (A.slit (A.constant a0_start) (A.constant a0_size) xs) :: A.Acc (Matrix Double)
   b0 = (A.slit (A.constant b0_start) (A.constant b0_size) xs) :: A.Acc (A.Vector Double)
@@ -107,17 +107,26 @@ backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16))
   armijo a = f x2 <= fx + c * a * gp
    where x2 = A.zipWith (+) x (A.map (a *) p)
 
+neuralNetGradientDescent parameters = iterate neuralNet_update parameters
+
 main = do
   -- generate some random numbers as our initial parameters
   let rs = mkNormals' (0,1) 123 :: [Double]
   
-  -- run gradient descent
   let parameters = A.use (A.fromList (A.Z A.:. numberOfParameters) rs)
   
-  let nne = (uncurry neuralNetError . bsas)
+  -- run gradient descent
+  let ps = neuralNetGradientDescent parameters
   
-  print $ Interp.run $ A.unit $ fst $ nne parameters
-  print $ Interp.run $ A.unit $ fst $ nne $ neuralNet_update parameters
+  -- obtain one of the iterations of gradient descent
+  let p = (ps !! 1)
+  
+  -- print the new parameters
+  print $ CPU.run p
+  
+  -- print the error
+  let nne = (uncurry neuralNetError . bsas)
+  print $ CPU.run $ A.unit $ fst $ nne p
 
 {-}
 neuralNet_update bs as = zipWith (+) params (map (stepSize *) searchDirection)
