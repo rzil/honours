@@ -27,19 +27,17 @@ matrixDimensions :: Elt e => Acc (Matrix e) -> (Exp Int, Exp Int)
 matrixDimensions matrix = let Z :. rows :. columns = unlift (shape matrix) in (rows,columns)
 
 neuralNet :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> Acc (Vector Double) -> Dif
-neuralNet (b:bs) (a:as) f x = let py = p (dVal y) in D (dVal py) (deriv py A.++ (deriv (q y)))
- where
-  y = nn bs as f x
-  p = dAffine_wrt_parameters b a
-  q = dAffine b a
+neuralNet (b:bs) (a:as) f = (dAffine_wrt_parameters_and_input b a) . (nn bs as f)
 
 nn :: [Acc (Vector Double)] -> [Acc (Matrix Double)] -> Activation Double -> Acc (Vector Double) -> Dif
-nn [b] [a] f x = ((dActivation f) . (dAffine_wrt_parameters b a)) x
-nn (b:bs) (a:as) f x = let py = p (dVal y) in D (dVal py) (deriv py A.++ (deriv (q y)))
+nn [b] [a] f = (dActivation f) . (dAffine_wrt_parameters b a)
+nn (b:bs) (a:as) f = (dActivation f) . (dAffine_wrt_parameters_and_input b a) . (nn bs as f)
+
+dAffine_wrt_parameters_and_input :: A.Acc (A.Vector Double) -> A.Acc (Matrix Double) -> Dif -> Dif
+dAffine_wrt_parameters_and_input b a x = let px = p (dVal x) in D (dVal px) (deriv px A.++ (deriv (q x)))
  where
-  y = nn bs as f x
-  p = (dActivation f) . (dAffine_wrt_parameters b a)
-  q = (dActivation f) . (dAffine b a)
+  p = dAffine_wrt_parameters b a
+  q = dAffine b a
 
 jacobian_wrt_matrix_multiply :: A.Num a => Exp Int -> Acc (Vector a) -> Acc (Matrix a)
 jacobian_wrt_matrix_multiply rows x = generate (index2 rows (rows * n)) generator
@@ -227,6 +225,4 @@ infix 0 >-<
 (>-<) :: (Acc (Vector Double) -> Acc (Vector Double)) -> (Acc (Vector Double) -> Acc (Matrix Double)) -> Dif -> Dif
 f >-< d = \ (D u u') -> D (f u) ((d u) !*! u')
 
-instance P.Num Dif where
-  (D x x') + (D y y') = D (x ^+^ y) (A.zipWith (+) x' y')
-  negate (D x x') = D (A.map negate x) (A.map negate x')
+difAdd (D x x') (D y y') = D (x ^+^ y) (A.zipWith (+) x' y')
