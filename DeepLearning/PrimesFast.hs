@@ -56,7 +56,8 @@ normalise :: A.Acc (A.Vector Double) -> A.Acc (A.Vector Double)
 normalise xs = A.map (/ (sqrt n)) xs
  where n = dot xs xs
 
-bsas xs = ([b2,b1,b0],[a2,a1,a0])
+splitParameters :: A.Acc (A.Vector Double) -> ([A.Acc (A.Vector Double)], [A.Acc (Matrix Double)])
+splitParameters xs = ([b2,b1,b0],[a2,a1,a0])
  where
   a2_start = 0
   a2_size = neuralNetOutputs * neuralNetWidth
@@ -84,13 +85,14 @@ neuralNet_update :: A.Acc (A.Vector Double) -> A.Acc (A.Vector Double)
 neuralNet_update xs = A.zipWith (+) xs (A.map (stepSize *) searchDirection)
  where
   -- the gradient at current point in parameter space
-  (err,grad) = (uncurry neuralNetError . bsas) xs
+  (err,grad) = (uncurry neuralNetError . splitParameters) xs
   
   -- use line search with Armijo condition to find best step size
   searchDirection = A.map negate (normalise grad)
 --  startingStepSize = 10
-  stepSize = 1e-2 --backtrackingLineSearch (fst . uncurry neuralNetError . bsas) xs grad searchDirection startingStepSize
+  stepSize = 1e-2 --backtrackingLineSearch (fst . uncurry neuralNetError . splitParameters) xs grad searchDirection startingStepSize
 
+{-}
 backtrackingLineSearch
   :: (A.Acc (A.Vector Double) -> A.Exp Double)
      -> A.Acc (A.Vector Double)
@@ -106,6 +108,7 @@ backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16))
   gp = dot g p
   armijo a = f x2 <= fx + c * a * gp
    where x2 = A.zipWith (+) x (A.map (a *) p)
+-}
 
 neuralNetGradientDescent parameters = iterate neuralNet_update parameters
 
@@ -125,7 +128,7 @@ main = do
   print $ CPU.run p
   
   -- print the error
-  let nne = (uncurry neuralNetError . bsas)
+  let nne = (uncurry neuralNetError . splitParameters)
   print $ CPU.run $ A.unit $ fst $ nne p
 
 {-}
