@@ -2,7 +2,7 @@ module Main where
 
 import Data.Random.Normal
 import Data.List.Split
-import Data.Numbers.Primes
+--import Data.Numbers.Primes
 
 import Data.NumInstances
 import qualified Data.Array.Accelerate as A
@@ -10,7 +10,7 @@ import Data.Array.Accelerate.Dif
 
 import qualified Data.Array.Accelerate.Interpreter as Interp
 import qualified Data.Array.Accelerate.LLVM.Native as CPU
---import qualified Data.Array.Accelerate.LLVM.PTX    as PTX
+import qualified Data.Array.Accelerate.LLVM.PTX    as PTX
 
 
 --instance Real a => Real (Dif e a) where toRational = toRational . dVal
