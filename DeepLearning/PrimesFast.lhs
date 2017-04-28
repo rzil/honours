@@ -1,4 +1,4 @@
-This code tries to train a neural net using the Haskell Accelerate library for parallel computing.
+This code tries to train a neural net using the [Haskell Accelerate library](https://github.com/AccelerateHS/accelerate/) for parallel computing.
 The hope is to be able to run stuff on the GPU for a huge speedup. Unfortunately it's not working
 properly right now. Instead of speeding it up, runing this on the GPU seems to slow it down. Not
 sure why at the moment.
