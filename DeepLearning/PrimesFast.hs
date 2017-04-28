@@ -2,18 +2,14 @@ module Main where
 
 import Data.Random.Normal
 import Data.List.Split
---import Data.Numbers.Primes
 
 import Data.NumInstances
 import qualified Data.Array.Accelerate as A
 import Data.Array.Accelerate.Dif
 
-import qualified Data.Array.Accelerate.Interpreter as Interp
-import qualified Data.Array.Accelerate.LLVM.Native as CPU
-import qualified Data.Array.Accelerate.LLVM.PTX    as PTX
-
-
---instance Real a => Real (Dif e a) where toRational = toRational . dVal
+--import qualified Data.Array.Accelerate.Interpreter as Backend
+import qualified Data.Array.Accelerate.LLVM.Native as Backend
+--import qualified Data.Array.Accelerate.LLVM.PTX    as Backend
 
 neuralNetInputs :: Int
 neuralNetInputs = 2
@@ -121,121 +117,14 @@ main = do
   -- run gradient descent
   let ps = neuralNetGradientDescent parameters
   
-  -- obtain one of the iterations of gradient descent
-  let p = (ps !! 1)
-  
   -- print the new parameters
-  print $ CPU.run p
+--  print $ Backend.run (ps !! 1)
   
-  -- print the error
+  -- neural network error function
   let nne = (uncurry neuralNetError . splitParameters)
-  print $ CPU.run $ A.unit $ fst $ nne p
-
-{-}
-neuralNet_update bs as = zipWith (+) params (map (stepSize *) searchDirection)
- where
-  -- the gradient at current point in parameter space
-  grad = neuralNetErrorGradient bs as
   
-  -- use line search with Armijo condition to find best step size
-  searchDirection = map negate (normalise grad)
-  startingStepSize = 10
-  stepSize = backtrackingLineSearch neuralNet_Error params grad searchDirection startingStepSize
-
-backtrackingLineSearch
-  :: (Ord t, Fractional t) =>
-     ([t] -> t) -> [t] -> [t] -> [t] -> t -> t
-backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16)) (iterate (tau *) a0))
- where
-  tau = 0.8
-  c = 0.7
-  fx = f x
-  gp = dot g p
-  armijo a = f x2 <= fx + c * a * gp
-   where x2 = zipWith (+) x (map (a *) p)
--}
-
-{-}
-neuralNet :: Floating t => [t] -> t -> t -> t
-neuralNet params u v = (((transpose w2) * hiddenLayersOutput) + d) ! (1,1)
- where
-  -- construct input vector
-  input = fromList 2 1 [u,v]
+  -- print the error at start
+  print $ Backend.run $ A.unit $ fst $ nne (ps !! 0)
   
-  -- feed input through hidden layers
-  applyHiddenLayer w c x = fmap activation ((w * x) + c)
-  hiddenLayersOutput = foldr ($) input (zipWith applyHiddenLayer (w1s ++ [w0]) (bs ++ [c]))
-  
-  -- extract the various components
-  [w0_param,c_param,w_params,b_params,w2_param,d_param] = splitPlaces [neuralNetInputs*neuralNetWidth,neuralNetWidth,(neuralNetDepth-1)*neuralNetWidth^2,(neuralNetDepth-1)*neuralNetWidth,neuralNetWidth,1] params
-  
-  -- construct matrices and vectors
-  w0 = fromList neuralNetWidth neuralNetInputs w0_param
-  c = fromList neuralNetWidth 1 c_param
-  w1s = map (fromList neuralNetWidth neuralNetWidth) (chunksOf (neuralNetWidth^2) w_params)
-  bs = map (fromList neuralNetWidth 1) (chunksOf neuralNetWidth b_params)
-  w2 = fromList neuralNetWidth 1 w2_param
-  d = fromList 1 1 d_param
-
-myRound :: (Real a, Integral c) => a -> c
-myRound = round . toRational
-
-target :: (Real t, Num u) => t -> t -> u
-target u v = let x = 4*u + v in if isPrime (myRound x) then 1 else 0
-
-neuralNet_Error :: (Real a, Floating a) => [a] -> a
-neuralNet_Error params = sum [let (u,v) = (fromIntegral a,fromIntegral b) in ((neuralNet params u v) - (target u v))^2 / 2 | (a,b) <- inputSpace]
- where inputSpace = [(u,v) | u <- [0..3], v <- [0..3]]
-
-neuralNet_Error_Gradient :: (Real b, Floating b) => [b] -> [b]
-neuralNet_Error_Gradient params = map dVal (gradient neuralNet_Error params)
-
-dot :: Num a => [a] -> [a] -> a
-dot xs ys = sum (zipWith (*) xs ys)
-
-normalise :: Floating b => [b] -> [b]
-normalise xs = map (/ (sqrt n)) xs
- where n = dot xs xs
-
-neuralNet_update :: (Real c, Floating c) => [c] -> [c]
-neuralNet_update params = zipWith (+) params (map (stepSize *) searchDirection)
- where
-  -- the gradient at current point in parameter space
-  grad = neuralNet_Error_Gradient params
-  
-  -- use line search with Armijo condition to find best step size
-  searchDirection = map negate (normalise grad)
-  startingStepSize = 10
-  stepSize = backtrackingLineSearch neuralNet_Error params grad searchDirection startingStepSize
-
-backtrackingLineSearch
-  :: (Ord t, Fractional t) =>
-     ([t] -> t) -> [t] -> [t] -> [t] -> t -> t
-backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16)) (iterate (tau *) a0))
- where
-  tau = 0.8
-  c = 0.7
-  fx = f x
-  gp = dot g p
-  armijo a = f x2 <= fx + c * a * gp
-   where x2 = zipWith (+) x (map (a *) p)
-
-neuralNet_gradient_descent :: (Real c, Floating c) => [c] -> [[c]]
-neuralNet_gradient_descent startingParams = iterate neuralNet_update startingParams
-
-main = do
-  -- generate some random numbers as our initial parameters
-  let rs = map ((2*) - 1) (randoms (mkStdGen 3) :: [Double])
-  
-  -- run gradient descent
-  let ps = neuralNet_gradient_descent (take numberOfParameters rs)
-  
-  -- obtain one of the iterations of gradient descent
-  let p = (ps !! 100000)
-  
-  -- print the new parameters
-  print p
-  
-  -- print the new error
-  print $ neuralNet_Error p
--}
+  -- print the error after one step of gradient descent
+  print $ Backend.run $ A.unit $ fst $ nne (ps !! 1)
