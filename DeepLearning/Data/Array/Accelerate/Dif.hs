@@ -18,7 +18,8 @@ import Data.Array.Accelerate as A
 type Matrix a = Array DIM2 a
 type Activation a = (Exp a -> Exp a, Exp a -> Exp a)   -- a function paired with its derivative
 
--- the derivative should be a map from parameter space to the space of the value
+-- dVal is the output value of some differentiable function for some input
+-- deriv is the Jacobian at this input point
 data Dif = D { dVal :: Acc (Vector Double), deriv :: Acc (Matrix Double) }
 
 instance Show Dif where show d = "D " P.++ (show $ dVal d) P.++ " ..."
