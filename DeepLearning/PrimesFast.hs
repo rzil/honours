@@ -33,11 +33,14 @@ logistic x = recip (1+ (exp $ negate x))
 logisticDerivative :: Floating a => a -> a
 logisticDerivative x = logistic x * (1 - (logistic x))
 
+-- the neural network evaluation function
 neuralNetLogistic :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> A.Acc (A.Vector Double) -> Dif
 neuralNetLogistic bs as x = neuralNet bs as (logistic,logisticDerivative) x
 
+-- our target function
 target u v = (u + 2*v) - 0.5
 
+-- the neural network error and gradient
 neuralNetError :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> (A.Exp Double, A.Acc (A.Vector Double))
 neuralNetError bs as = (A.the (A.reshape (A.lift A.Z) y),A.reshape (A.lift (A.Z A.:. (A.constant numberOfParameters))) y')
  where
@@ -51,6 +54,7 @@ normalise :: A.Acc (A.Vector Double) -> A.Acc (A.Vector Double)
 normalise xs = A.map (/ (sqrt n)) xs
  where n = dot xs xs
 
+-- splits up an array into the form needed to pass to neural network functions above
 splitParameters :: A.Acc (A.Vector Double) -> ([A.Acc (A.Vector Double)], [A.Acc (Matrix Double)])
 splitParameters xs = ([b2,b1,b0],[a2,a1,a0])
  where
@@ -76,6 +80,7 @@ splitParameters xs = ([b2,b1,b0],[a2,a1,a0])
   a2 = A.reshape (A.lift (A.Z A.:. neuralNetOutputs A.:. neuralNetWidth)) (A.slit (A.constant a2_start) (A.constant a2_size) xs) :: A.Acc (Matrix Double)
   b2 = (A.slit (A.constant b2_start) (A.constant b2_size) xs) :: A.Acc (A.Vector Double)
 
+-- one step of gradient descent, updating the paramaters
 neuralNet_update :: A.Acc (A.Vector Double) -> A.Acc (A.Vector Double)
 neuralNet_update xs = A.zipWith (+) xs (A.map (stepSize *) searchDirection)
  where
@@ -105,6 +110,7 @@ backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16))
    where x2 = A.zipWith (+) x (A.map (a *) p)
 -}
 
+-- gradient descent
 neuralNetGradientDescent parameters = iterate neuralNet_update parameters
 
 main = do
