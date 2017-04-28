@@ -3,7 +3,7 @@ The hope is to be able to run stuff on the GPU for a huge speedup. Unfortunately
 properly right now. Instead of speeding it up, runing this on the GPU seems to slow it down. Not
 sure why at the moment.
 
-For this to work I wrote a [module](Data/Array/Accelerate/Dif.hs) that tries to lift the automatic differentiation idea
+For this to work I wrote a [module](https://github.com/rzil/honours/blob/master/DeepLearning/Data/Array/Accelerate/Dif.hs) that tries to lift the automatic differentiation idea
 to vector valued functions and then also make it use Accelerate arrays.
 
 Start out with declaring module name and importing some other modules.
