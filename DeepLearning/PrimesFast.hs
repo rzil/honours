@@ -3,7 +3,6 @@ module Main where
 import Data.Random.Normal
 import Data.List.Split
 
-import Data.NumInstances
 import qualified Data.Array.Accelerate as A
 import Data.Array.Accelerate.Dif
 
@@ -29,10 +28,10 @@ numberOfParameters = (neuralNetInputs + 1) * neuralNetWidth + (neuralNetWidth + 
 -- https://en.wikipedia.org/wiki/Logistic_function
 
 logistic :: Floating a => a -> a
-logistic = recip (1+(exp negate))
+logistic x = recip (1+ (exp $ negate x))
 
 logisticDerivative :: Floating a => a -> a
-logisticDerivative = logistic * (1 - logistic)
+logisticDerivative x = logistic x * (1 - (logistic x))
 
 neuralNetLogistic :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> A.Acc (A.Vector Double) -> Dif
 neuralNetLogistic bs as x = neuralNet bs as (logistic,logisticDerivative) x
