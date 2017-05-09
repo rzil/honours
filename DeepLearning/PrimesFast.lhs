@@ -63,8 +63,8 @@ neuralNetLogistic bs as x = neuralNet bs as (logistic,logisticDerivative) x
 The neural network error and gradient. Also the target function
 
 ```haskell
-neuralNetError :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> (A.Exp Double, A.Acc (A.Vector Double))
-neuralNetError bs as = (A.the (A.reshape (A.lift A.Z) y),A.reshape (A.lift (A.Z A.:. (A.constant numberOfParameters))) y')
+neuralNetError :: [A.Acc (A.Vector Double)] -> [A.Acc (Matrix Double)] -> (A.Acc (A.Scalar Double), A.Acc (A.Vector Double))
+neuralNetError bs as = (A.reshape (A.lift A.Z) y,A.reshape (A.lift (A.Z A.:. (A.constant numberOfParameters))) y')
  where
   input u v = A.fromList (A.Z A.:. (2::Int)) [u,v]
   D y y' = foldl1 difAdd [(dSquareError (A.constant (target u v)) . (neuralNetLogistic bs as)) (A.use (input u v)) | u <- [0::Double,1,2,3], v <- [0::Double,1,2,3]]
@@ -97,7 +97,8 @@ normalise xs = A.map (/ (sqrt n)) xs
 Gradient descent.
 
 ```haskell
-neuralNetGradientDescent parameters = iterate neuralNet_update parameters
+neuralNetGradientDescent :: A.Vector Double -> [A.Vector Double]
+neuralNetGradientDescent parameters = iterate (Backend.run1 neuralNet_update) parameters
 ```
 
 Our main function
@@ -107,7 +108,7 @@ main = do
   -- generate some random numbers as our initial parameters
   let rs = mkNormals' (0,1) 123 :: [Double]
   
-  let parameters = A.use (A.fromList (A.Z A.:. numberOfParameters) rs)
+  let parameters = A.fromList (A.Z A.:. numberOfParameters) rs
   
   -- run gradient descent
   let ps = neuralNetGradientDescent parameters
@@ -116,16 +117,10 @@ main = do
   let nne = (uncurry neuralNetError . splitParameters)
   
   -- print the error at start
-  print $ Backend.run $ A.unit $ fst $ nne (ps !! 0)
+  print $ Backend.run $ fst $ nne $ A.use (ps !! 0)
   
-  -- print the error after one step of gradient descent
-  print $ Backend.run $ A.unit $ fst $ nne (ps !! 1)
-  
-  -- print the error after one step of gradient descent
-  print $ Backend.run $ A.unit $ fst $ nne (ps !! 2)
-  
-  -- print the error after one step of gradient descent
-  print $ Backend.run $ A.unit $ fst $ nne (ps !! 3)
+  -- print the error after n steps of gradient descent
+  print $ Backend.run $ fst $ nne $ A.use (ps !! 2000)
 ```
 
 This splits up an array into sub-arrays for passing into our neural net. It's not the nicest looking
@@ -161,5 +156,5 @@ splitParameters xs = ([b2,b1,b0],[a2,a1,a0])
 All source code files [here](https://github.com/rzil/honours/tree/master/DeepLearning).
 
 This file is [Literate Haskell Markdown](https://github.com/sol/markdown-unlit). Use
-`ghc -pgmL markdown-unlit --make -O2 PrimesFast.lhs`
+`ghc -pgmL markdown-unlit --make -O2 -threaded PrimesFast.lhs`
 to compile.
