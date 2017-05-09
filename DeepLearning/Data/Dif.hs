@@ -28,9 +28,6 @@ module Data.Dif (Dif(..), dId, dConst) where
 import Data.Function (on)
 import Data.NumInstances ()
 
-import Data.AdditiveGroup
-import Data.VectorSpace
-
 -- | Tower of derivatives.
 data Dif e a = D { dVal :: a, deriv :: e -> Dif e a }
 
@@ -52,20 +49,6 @@ dConst x = D x (const 0)
 instance Show a => Show (Dif e a) where show    = show     .   dVal 
 instance Eq   a => Eq   (Dif e a) where (==)    = (==)    `on` dVal
 instance Ord  a => Ord  (Dif e a) where compare = compare `on` dVal
-
--- Later generalize derivatives to non-scalar vector spaces
--- | Like dConst' but assuming 'VectorSpace' instead of 'Num'.
-dConstV :: AdditiveGroup s => s -> Dif e s
-dConstV v = D v zeroV
-
-instance AdditiveGroup s => AdditiveGroup (Dif e s) where
-  zeroV = dConstV zeroV
-  D x x' ^+^ D y y' = D (x ^+^ y) (x' ^+^ y')
-  negateV (D x x') = D (negateV x) (\i -> negateV (x' i))
-
-instance VectorSpace s => VectorSpace (Dif e s) where
-  type Scalar (Dif e v) = Scalar v
-  s *^ D x x' = D (s*^x) (\i -> s*^(x' i))
 
 -- The chain rule
 infix 0 >-<
