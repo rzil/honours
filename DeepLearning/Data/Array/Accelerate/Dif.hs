@@ -153,13 +153,19 @@ kroneckerDelta :: A.Num a => Exp Int -> Exp Int -> Exp a
 kroneckerDelta i j = ifThenElse (i A.== j) 1 0
 
 softmaxJacobian :: Acc (Vector Double) -> Acc (Matrix Double)
-softmaxJacobian softmaxedVector = generate (index2 n n) generator
+softmaxJacobian softmaxedVector = A.imap (\sh a -> let Z :. r :. c = unlift sh in (ifThenElse (r A.== c) (softmaxedVector A.! (lift (Z :. r))) 0) + (negate a)) (A.zipWith (*) (A.replicate (lift (Z :. All :. n)) softmaxedVector) (A.replicate (lift (Z :. n :. All)) softmaxedVector))
+ where n = A.length softmaxedVector
+
+{-
+softmaxJacobian2 :: Acc (Vector Double) -> Acc (Matrix Double)
+softmaxJacobian2 softmaxedVector = generate (index2 n n) generator
  where
   s :: Exp Int -> Exp Double
   s i = softmaxedVector A.! (lift (Z :. i))
   ds j i = (s i)*((kroneckerDelta i j) - (s j))
   generator sh = let Z :. r :. c = unlift sh :: (Z :. Exp Int :. Exp Int) in ds r c
   n = A.length softmaxedVector
+-}
 
 shapeIsSquare :: Exp ((Z :. Int) :. Int) -> Exp Int
 shapeIsSquare sh = let Z :. r :. c = unlift sh in kroneckerDelta r c
