@@ -8,11 +8,15 @@ Start out with declaring module name and importing some other modules.
 ```haskell
 module Main where
 
-import System.Random
 import Data.List.Split
 import Data.Numbers.Primes
-import Data.Matrix
+import Data.Matrix as M
 import Data.Dif
+
+import Debug.Trace
+import Data.Random.Normal
+import Data.List as L (transpose)
+import Graphics.EasyPlot
 ```
 
 In this example I want to be able to round floating point numbers to integers. Normally this
@@ -61,11 +65,20 @@ Here is the neural net itself. Everything is purely functional of course.
 logistic :: Floating a => a -> a
 logistic = recip (1+(exp negate))
 
+trig :: Floating a => a -> a
+trig = (1+tanh) / 2
+
+linear :: Num a => a -> a
+linear = id
+
+relu :: Fractional a => a -> a
+relu = (1+signum) * linear / 2
+
 activation :: Floating a => a -> a
-activation = logistic
+activation = relu
 
 neuralNet :: Floating t => [t] -> t -> t -> t
-neuralNet params u v = (((transpose w2) * hiddenLayersOutput) + d) ! (1,1)
+neuralNet params u v = (((M.transpose w2) * hiddenLayersOutput) + d) ! (1,1)
  where
   -- construct input vector
   input = fromList 2 1 [u,v]
@@ -104,6 +117,9 @@ The neural net error function.
 neuralNet_Error :: (Real a, Floating a) => [a] -> a
 neuralNet_Error params = sum [let (u,v) = (fromIntegral a,fromIntegral b) in ((neuralNet params u v) - (target u v))^2 / 2 | (a,b) <- inputSpace]
  where inputSpace = [(u,v) | u <- [0..3], v <- [0..3]]
+
+l1_regularise amount params = sum (map (amount * abs) params)   -- L1 regularisation
+l2_regularise amount params  = sum (map (amount * (^ 2)) params)   -- L2 regularisation
 ```
 
 The gradient of the error function.
@@ -131,16 +147,16 @@ neuralNet_update params = zipWith (+) params (map (stepSize *) searchDirection)
   
   -- use line search with Armijo condition to find best step size
   searchDirection = map negate (normalise grad)
-  startingStepSize = 10
+  startingStepSize = 16
   stepSize = backtrackingLineSearch neuralNet_Error params grad searchDirection startingStepSize
 
 backtrackingLineSearch
   :: (Ord t, Fractional t) =>
      ([t] -> t) -> [t] -> [t] -> [t] -> t -> t
-backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-16)) (iterate (tau *) a0))
+backtrackingLineSearch f x g p a0 = head (filter (\a -> armijo a || (a < 1e-9)) (iterate (tau *) a0))
  where
-  tau = 0.8
-  c = 0.7
+  tau = 0.8 -- between 0.5 to 0.8
+  c = 0.1  -- between 0.001 to 0.1
   fx = f x
   gp = dot g p
   armijo a = f x2 <= fx + c * a * gp
@@ -159,19 +175,27 @@ Finally our main function.
 ```haskell
 main = do
   -- generate some random numbers as our initial parameters
-  let rs = map ((2*) - 1) (randoms (mkStdGen 3) :: [Double])
+  let rs = mkNormals' (0,1) 12412312 :: [Double]
   
   -- run gradient descent
   let ps = neuralNet_gradient_descent (take numberOfParameters rs)
   
+  let params = take 10000 ps
+  let errors = zipWith (\i x -> traceShow (i,x) x) [0..] (map neuralNet_Error params)
+  writeFile "error.txt" (unlines (map show errors))
+  plot (PNG "error.png") (Data2D [Style Lines, Title "Error"] [] (drop 10 $ (zip [0..] errors)))
+  sequence_ [plot (PNG $ "param" ++ show i ++ ".png") (Data2D [Style Lines, Title (show i)] [] (zip [0..] qs)) | (i,qs) <- zip [0..] (L.transpose params)]
+  print (neuralNet_Error $ head params)
+  print (neuralNet_Error $ last params)
+  
   -- obtain one of the iterations of gradient descent
-  let p = (ps !! 100000)
+--  let p = (ps !! 100000)
   
   -- print the new parameters
-  print p
+--  print p
   
   -- print the new error
-  print $ neuralNet_Error p
+--  print $ neuralNet_Error p
 ```
 
 After training for around 100,000 iterations one gets some such as the following. On my MacBook Pro this takes around one hour to complete after I compile using the -O2 optimisation flag.
