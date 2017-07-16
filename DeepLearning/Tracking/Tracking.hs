@@ -9,31 +9,31 @@ import BoxTrack
 
 import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
-import Codec.Picture
-import Codec.Picture.Canvas
-import qualified Codec.Picture.Types as M
-import Debug.Trace
+import Codec.Picture( PixelRGBA8( .. ), writePng )
+import Graphics.Text.TrueType( loadFontFile )
+import Graphics.Rasterific
+import Graphics.Rasterific.Texture
+
+--import Debug.Trace
 
 testFile = "/Users/ruben/Documents/thirdparty/darknet/airplane-formation-boxes.txt"
 imagesDirectory = "/Users/ruben/Documents/thirdparty/darknet/airplane-formation/"
-
-drawRectangleLineWidth :: Pixel t => Int -> Int -> Int -> Int -> Int -> t -> Canvas t -> Canvas t
-drawRectangleLineWidth 0 _ _ _ _ _ c = c
-drawRectangleLineWidth lw l u w h p c = drawRectangle l u w h p (drawRectangleLineWidth (lw-1) (l+1) (u+1) (w-2) (h-2) p c)
+lineWidth = 10
 
 drawBoxes n imageFilename boxes = do
   putStrLn ("Image " ++ show n)
-  eimg <- readImage (imagesDirectory ++ imageFilename)
-  case eimg of
-    Left err -> error ("Could not read image: " ++ err)
-    Right dynamicImage -> do
-      let img = convertRGB8 dynamicImage
-      case imageToCanvas img of
-         Left err -> error ("Could not create canvas: " ++ err)
-         Right canvas -> do
-            let can = foldr ($) canvas [let (RGB r g b) = fmap (floor . (* 255)) $ hsl (fromIntegral (label*5)) 0.54 0.5 in traceShow (left,right,up,down) $ drawRectangleLineWidth 3 (round left) (round up) (round (right-left)) (round (down-up)) (PixelRGB8 r g b) | Box left right up down kind (Just label) <- boxes]
-            let image = canvasToImage can
-            savePngImage ("output/" ++ show n ++ ".png") (ImageRGB8 image)
+  (Right dynamicImage) <- readImage (imagesDirectory ++ imageFilename)
+  (Right font) <- loadFontFile "DejaVuSans.ttf"
+  let currentImage = convertRGBA8 dynamicImage
+  let white = PixelRGBA8 255 255 255 255
+      img = renderDrawing (imageWidth currentImage) (imageHeight currentImage) white $ do
+        drawImageAtSize currentImage 0 (V2 0 0) (fromIntegral (imageWidth currentImage)) (fromIntegral (imageHeight currentImage))
+        sequence_ [let (RGB r g b) = fmap (floor . (* 255)) $ hsl (fromIntegral (label*5)) 0.54 0.5
+                   in withTexture (uniformTexture (PixelRGBA8 r g b 255)) $ do
+                       stroke lineWidth JoinRound (CapRound, CapRound) $ rectangle (V2 left up) (right-left) (down-up)
+                       printTextAt font (PointSize 12) (V2 (left+12) (up+24)) (show label) | Box left right up down kind (Just label) <- boxes]
+  
+  writePng ("output/" ++ show n ++ ".png") img
 
 filenameParse name = read (takeWhile (/= '.') (drop 6 name)) :: Int
 

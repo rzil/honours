@@ -71,4 +71,4 @@ testC = let bs = randomBoxes 4231 in labelBoxesGreedyPairs  (take 8 bs) (take 8 
 
 randomBoxes :: Int -> [Box]
 randomBoxes seed = map (\[x,y,w,h] -> boxFromCentreWH x y w h) (chunksOf 4 rs)
- where rs = mkNormals' (4,1) seed :: [Double]
+ where rs = mkNormals' (4,1) seed :: [Coord]
