@@ -21,6 +21,7 @@ testFile = "/Users/ruben/Documents/thirdparty/darknet/airplane-formation-boxes.t
 imagesDirectory = "/Users/ruben/Documents/thirdparty/darknet/airplane-formation/"
 lineWidth = 10
 
+-- reads in the image file and the boxes and draws the boxes onto the image then saves it to new path
 drawBoxes n imageFilename boxes = do
   putStrLn ("Image " ++ show n)
   (Right dynamicImage) <- readImage (imagesDirectory ++ imageFilename)
@@ -36,14 +37,25 @@ drawBoxes n imageFilename boxes = do
   
   writePng ("output/" ++ show n ++ ".png") img
 
+-- parse the input filenames to allow us to sort by number
 filenameParse name = read (takeWhile (/= '.') (drop 6 name)) :: Int
 
+-- reads images and boxes, labels boxes, then draws them onto images
 main = do
   images <- return . sortBy (on compare filenameParse) . filter (isSuffixOf "jpg") =<< (listDirectory imagesDirectory)
   f <- readFile testFile
   let boxes = accumulate1 groupAndLabelBoxes (parseBoxes f)
   sequence_ (drop 150 (zipWith3 drawBoxes [0..] images boxes))
 
+-- accumulate is like foldl but it stores each step in a list
+accumulate :: (u -> t -> u) -> u -> [t] -> [u]
+accumulate _ x [] = [x]
+accumulate f x (y:ys) = x : accumulate f (f x y) ys
+
+accumulate1 :: (t -> t -> t) -> [t] -> [t]
+accumulate1 f (x:xs) = accumulate f x xs
+
+-- parsing functions
 parseBox :: [String] -> Box
 parseBox [name,coords] = defaultBox {left = l, right = r, up = u, down = d, kind = Just (takeWhile (/= ':') name)}
  where [l,r,u,d] = map read (splitOn "," coords)
@@ -51,10 +63,3 @@ parseBox huh = error $ show huh
 
 parseBoxes :: String -> [[Box]]
 parseBoxes string = map (map parseBox . chunksOf 2) (splitWhen (isPrefixOf "Enter Image Path:") (lines string))
-
-accumulate :: (u -> t -> u) -> u -> [t] -> [u]
-accumulate _ x [] = [x]
-accumulate f x (y:ys) = x : accumulate f (f x y) ys
-
-accumulate1 :: (t -> t -> t) -> [t] -> [t]
-accumulate1 f (x:xs) = accumulate f x xs
