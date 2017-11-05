@@ -2,3 +2,4 @@
 *.hi
 .DS_Store
 events.out.tfevents*
+saves.tf*
