@@ -38,12 +38,13 @@ class Model {
     var sgemmKernel:MPSMatrixMultiplication?
     var commandBuffer:MTLCommandBuffer?
     
+    var W_elements: [Float]?
+    var b_elements: [Float]?
+    
     var A:MPSMatrix?
     var B:MPSMatrix?
     var C:MPSMatrix?
-    
-    var b_elements: [Float]?
-    
+
     static var shared:Model = Model()
     
     private init() {
@@ -57,7 +58,7 @@ class Model {
             guard let W_url = Bundle.main.url(forResource: "W", withExtension: "npy", subdirectory: nil, localization: nil) else { return }
             let W_npy = try Npy(contentsOf: W_url)
             let W_shape = W_npy.shape
-            let W_elements: [Float] = W_npy.elements()
+            W_elements = W_npy.elements()
 //            let W_isFortranOrder = W_npy.isFortranOrder
             
             guard let b_url = Bundle.main.url(forResource: "b", withExtension: "npy", subdirectory: nil, localization: nil) else { return }
@@ -78,7 +79,7 @@ class Model {
              properties to the MPSMatrix initialization routines.
              */
             var matrixDescriptor: MPSMatrixDescriptor
-
+            
             // Each row of A has K values.
             let ARowBytes = MPSMatrixDescriptor.rowBytes(forColumns: K, dataType: MPSDataType.float32)
             
@@ -90,7 +91,7 @@ class Model {
             
             // Create the buffers with the recommended sizes.
             let ABuffer = device.makeBuffer(length: M * ARowBytes)
-            let BBuffer = device.makeBuffer(bytes: W_elements, length: K * BRowBytes)
+            let BBuffer = device.makeBuffer(bytes: W_elements!, length: K * BRowBytes)
             let CBuffer = device.makeBuffer(length: M * CRowBytes)
             
             
@@ -118,6 +119,7 @@ class Model {
             matrixDescriptor.rowBytes = CRowBytes
             C = MPSMatrix(buffer: CBuffer!, descriptor: matrixDescriptor)
             
+            
             /*
              Create a kernel to perform generalized matrix multiplication on the
              system device using the desired parameters.
@@ -130,9 +132,6 @@ class Model {
                                                   interiorColumns: K,
                                                   alpha: alpha,
                                                   beta: beta)
-            
-            // Create a command buffer in the queue.
-            commandBuffer = commandQueue?.makeCommandBuffer()
         }
         catch {
             print(error.localizedDescription)
@@ -141,27 +140,26 @@ class Model {
     
     func run(input: [Float]) -> [Float]? {
         
-        guard let A = self.A else { return nil }
-        guard let B = self.B else { return nil }
-        guard let C = self.C else { return nil }
-        
-        guard let b_elements = self.b_elements else { return nil }
-        
         guard input.count == M * K else { return nil }
         
-        A.data.contents().copyBytes(from: input, count: input.count * MemoryLayout<Float>.stride)
-        
+        A?.data.contents().copyBytes(from: input, count: input.count * MemoryLayout<Float>.stride)
+
+        // Create a command buffer in the queue.
+        commandBuffer = commandQueue?.makeCommandBuffer()
+
         // Encode the kernel to the command buffer.
         sgemmKernel?.encode(commandBuffer:commandBuffer!,
-                            leftMatrix: A,
-                            rightMatrix: B,
-                            resultMatrix: C)
+                            leftMatrix: A!,
+                            rightMatrix: B!,
+                            resultMatrix: C!)
         
         // Commit the buffer and wait for it to complete.
         commandBuffer?.commit()
         commandBuffer?.waitUntilCompleted()
         
-        let result = C.data.contents().bindMemory(to: Float.self, capacity: N)
+        guard let b_elements = self.b_elements else { return nil }
+        
+        let result = C!.data.contents().bindMemory(to: Float.self, capacity: N)
         for i in 0 ..< N {
             result[i] += b_elements[i]
         }

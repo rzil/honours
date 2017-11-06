@@ -28,9 +28,15 @@ class ViewController: UIViewController {
     
     @IBAction func tappedButton(_ sender: UIButton) {
         var x:[Float] = Array(repeating: -1, count: 1440)
-        x[0] = 1
-        x[1] = 1
-        x[12] = 1
+        
+        for (i,a) in board.adjacency.enumerated() {
+            var oneHotVec:[Float] = Array(repeating: 0, count: 10)
+            oneHotVec[a+1] = 1
+            for j in 0 ..< 10 {
+                x[j + i*10] = oneHotVec[j]
+            }
+        }
+        
         guard let y = Model.shared.run(input: x), let max = y.max() else { return }
         guard let i = y.index(of: max) else { return }
         print(i)
