@@ -12,6 +12,15 @@
 		455083041FB0490400628183 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 455083021FB0490400628183 /* Main.storyboard */; };
 		455083061FB0490400628183 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 455083051FB0490400628183 /* Assets.xcassets */; };
 		455083091FB0490400628183 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 455083071FB0490400628183 /* LaunchScreen.storyboard */; };
+		455083121FB049BB00628183 /* b.npy in Resources */ = {isa = PBXBuildFile; fileRef = 455083101FB049BB00628183 /* b.npy */; };
+		455083131FB049BB00628183 /* W.npy in Resources */ = {isa = PBXBuildFile; fileRef = 455083111FB049BB00628183 /* W.npy */; };
+		455083201FB04D8C00628183 /* DataType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083181FB04D8C00628183 /* DataType.swift */; };
+		455083211FB04D8C00628183 /* NpySaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083191FB04D8C00628183 /* NpySaver.swift */; };
+		455083221FB04D8C00628183 /* NpyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831A1FB04D8C00628183 /* NpyLoader.swift */; };
+		455083231FB04D8C00628183 /* NpyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831B1FB04D8C00628183 /* NpyHeader.swift */; };
+		455083251FB04D8C00628183 /* Npz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831D1FB04D8C00628183 /* Npz.swift */; };
+		455083261FB04D8C00628183 /* Npy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831E1FB04D8C00628183 /* Npy.swift */; };
+		455083281FB05A0600628183 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083271FB05A0600628183 /* Model.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +31,17 @@
 		455083051FB0490400628183 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		455083081FB0490400628183 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4550830A1FB0490400628183 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		455083101FB049BB00628183 /* b.npy */ = {isa = PBXFileReference; lastKnownFileType = file; path = b.npy; sourceTree = "<group>"; };
+		455083111FB049BB00628183 /* W.npy */ = {isa = PBXFileReference; lastKnownFileType = file; path = W.npy; sourceTree = "<group>"; };
+		455083171FB04D8C00628183 /* NpzLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpzLoader.swift; sourceTree = "<group>"; };
+		455083181FB04D8C00628183 /* DataType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataType.swift; sourceTree = "<group>"; };
+		455083191FB04D8C00628183 /* NpySaver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpySaver.swift; sourceTree = "<group>"; };
+		4550831A1FB04D8C00628183 /* NpyLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpyLoader.swift; sourceTree = "<group>"; };
+		4550831B1FB04D8C00628183 /* NpyHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpyHeader.swift; sourceTree = "<group>"; };
+		4550831C1FB04D8C00628183 /* NpzSaver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpzSaver.swift; sourceTree = "<group>"; };
+		4550831D1FB04D8C00628183 /* Npz.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Npz.swift; sourceTree = "<group>"; };
+		4550831E1FB04D8C00628183 /* Npy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Npy.swift; sourceTree = "<group>"; };
+		455083271FB05A0600628183 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,12 +76,31 @@
 			children = (
 				455082FE1FB0490400628183 /* AppDelegate.swift */,
 				455083001FB0490400628183 /* ViewController.swift */,
+				455083271FB05A0600628183 /* Model.swift */,
+				455083161FB04D8C00628183 /* SwiftNpy */,
+				455083101FB049BB00628183 /* b.npy */,
+				455083111FB049BB00628183 /* W.npy */,
 				455083021FB0490400628183 /* Main.storyboard */,
 				455083051FB0490400628183 /* Assets.xcassets */,
 				455083071FB0490400628183 /* LaunchScreen.storyboard */,
 				4550830A1FB0490400628183 /* Info.plist */,
 			);
 			path = Zilisweeper;
+			sourceTree = "<group>";
+		};
+		455083161FB04D8C00628183 /* SwiftNpy */ = {
+			isa = PBXGroup;
+			children = (
+				455083171FB04D8C00628183 /* NpzLoader.swift */,
+				455083181FB04D8C00628183 /* DataType.swift */,
+				455083191FB04D8C00628183 /* NpySaver.swift */,
+				4550831A1FB04D8C00628183 /* NpyLoader.swift */,
+				4550831B1FB04D8C00628183 /* NpyHeader.swift */,
+				4550831C1FB04D8C00628183 /* NpzSaver.swift */,
+				4550831D1FB04D8C00628183 /* Npz.swift */,
+				4550831E1FB04D8C00628183 /* Npy.swift */,
+			);
+			path = SwiftNpy;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,6 +162,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				455083131FB049BB00628183 /* W.npy in Resources */,
+				455083121FB049BB00628183 /* b.npy in Resources */,
 				455083091FB0490400628183 /* LaunchScreen.storyboard in Resources */,
 				455083061FB0490400628183 /* Assets.xcassets in Resources */,
 				455083041FB0490400628183 /* Main.storyboard in Resources */,
@@ -136,7 +177,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				455083281FB05A0600628183 /* Model.swift in Sources */,
+				455083221FB04D8C00628183 /* NpyLoader.swift in Sources */,
+				455083261FB04D8C00628183 /* Npy.swift in Sources */,
 				455083011FB0490400628183 /* ViewController.swift in Sources */,
+				455083231FB04D8C00628183 /* NpyHeader.swift in Sources */,
+				455083201FB04D8C00628183 /* DataType.swift in Sources */,
+				455083211FB04D8C00628183 /* NpySaver.swift in Sources */,
+				455083251FB04D8C00628183 /* Npz.swift in Sources */,
 				455082FF1FB0490400628183 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -275,10 +323,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = RMZ2G329T3;
+				DEVELOPMENT_TEAM = Z3B4RSZ587;
 				INFOPLIST_FILE = Zilisweeper/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = au.com.rubenzilibowitz.Zilisweeper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.monyss.Zilisweeper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -290,10 +338,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = RMZ2G329T3;
+				DEVELOPMENT_TEAM = Z3B4RSZ587;
 				INFOPLIST_FILE = Zilisweeper/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = au.com.rubenzilibowitz.Zilisweeper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.monyss.Zilisweeper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
