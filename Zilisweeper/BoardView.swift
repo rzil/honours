@@ -10,10 +10,16 @@ import UIKit
 
 class BoardView: UIView {
     weak var board: Board!
+    var dead: Bool = false {
+        didSet {
+            backgroundColor = dead ? .red : .lightGray
+        }
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()
         layer.borderWidth = 1
+        dead = false
     }
     
     override func draw(_ rect: CGRect) {

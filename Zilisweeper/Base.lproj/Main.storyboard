@@ -18,15 +18,37 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rUi-qZ-iet">
-                                <rect key="frame" x="0.0" y="20" width="46" height="30"/>
-                                <state key="normal" title="Button"/>
-                                <connections>
-                                    <action selector="tappedButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CH6-xw-QcJ"/>
-                                </connections>
-                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="XOw-bC-obo">
+                                <rect key="frame" x="0.0" y="20" width="375" height="32"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rUi-qZ-iet">
+                                        <rect key="frame" x="0.0" y="0.0" width="125" height="32"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                        <state key="normal" title="Guess"/>
+                                        <connections>
+                                            <action selector="tappedGuess:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KzB-qa-Mga"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hKh-dH-9CZ">
+                                        <rect key="frame" x="125" y="0.0" width="125" height="32"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                        <state key="normal" title="Reset"/>
+                                        <connections>
+                                            <action selector="tappedReset:" destination="BYZ-38-t0r" eventType="touchUpInside" id="a3O-Rq-l1V"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KcC-SQ-g2i">
+                                        <rect key="frame" x="250" y="0.0" width="125" height="32"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                        <state key="normal" title="Randomise"/>
+                                        <connections>
+                                            <action selector="tappedRandomise:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uW8-JG-T58"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                             <view contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="gUV-nW-3Xg" customClass="BoardView" customModule="Zilisweeper" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="50" width="375" height="617"/>
+                                <rect key="frame" x="0.0" y="52" width="375" height="615"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
                                 <connections>
@@ -36,13 +58,13 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="gUV-nW-3Xg" firstAttribute="top" secondItem="rUi-qZ-iet" secondAttribute="bottom" id="0KV-6T-HZn"/>
+                            <constraint firstItem="XOw-bC-obo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="JE3-ib-CPW"/>
+                            <constraint firstItem="XOw-bC-obo" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="MeQ-Js-wQU"/>
                             <constraint firstItem="gUV-nW-3Xg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="P1m-kJ-Rl7"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="XOw-bC-obo" secondAttribute="trailing" id="Rid-ew-2gh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gUV-nW-3Xg" secondAttribute="trailing" id="UAC-Ad-K3F"/>
-                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="rUi-qZ-iet" secondAttribute="trailing" constant="20" symbolic="YES" id="aiN-1Y-S7S"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gUV-nW-3Xg" secondAttribute="bottom" id="cXh-w3-6IX"/>
-                            <constraint firstItem="rUi-qZ-iet" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="dPZ-Lu-qUE"/>
-                            <constraint firstItem="rUi-qZ-iet" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="ktd-Ij-NSb"/>
+                            <constraint firstItem="gUV-nW-3Xg" firstAttribute="top" secondItem="XOw-bC-obo" secondAttribute="bottom" id="ft5-zK-fU9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

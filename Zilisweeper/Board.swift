@@ -18,9 +18,18 @@ class Board {
     init() {
         mines = Array(repeating: false, count: rows * cols)
         adjacency = Array(repeating: -1, count: rows * cols)
-        adjacency[0] = 1
-        adjacency[1] = 1
-        adjacency[cols] = 1
+    }
+    
+    func randomiseMines(mineProbability: Double) {
+        for i in 0 ..< mines.count {
+            mines[i] = drand48() < mineProbability
+        }
+    }
+    
+    func reset() {
+        for i in 0 ..< adjacency.count {
+            adjacency[i] = -1
+        }
     }
     
     func indexFrom(row:Int, col:Int) -> Int {
@@ -31,8 +40,34 @@ class Board {
         return (index / cols, index % cols)
     }
     
-    func markFree(row:Int, col:Int) {
-        guard adjacency[indexFrom(row: row, col: col)] == -1 else { return }
+    func markFree(row:Int, col:Int) -> Bool {
+        let index = indexFrom(row: row, col: col)
+        guard mines[index] == false else { return true }
+        guard adjacency[index] == -1 else { return false }
+        var count: Int = 0
+        for r in row-1 ... row+1 {
+            for c in col-1 ... col+1 {
+                if 0 <= r && r < rows && 0 <= c && c < cols {
+                    count += mines[indexFrom(row: r, col: c)] ? 1 : 0
+                }
+            }
+        }
+        
+        if count == 0 {
+            adjacency[index] = 0
+            for r in row-1 ... row+1 {
+                for c in col-1 ... col+1 {
+                    if 0 <= r && r < rows && 0 <= c && c < cols {
+                        _ = markFree(row: r, col: c)
+                    }
+                }
+            }
+        }
+        else {
+            adjacency[index] = count
+        }
+        
+        return false
     }
     
     func markMine(row:Int, col:Int) {

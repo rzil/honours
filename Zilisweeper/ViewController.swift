@@ -18,6 +18,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        srand48(0)
+        board.randomiseMines(mineProbability: 0.16)
         boardView.board = board
     }
     
@@ -26,7 +28,20 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func tappedButton(_ sender: UIButton) {
+    @IBAction func tappedRandomise(_ sender: UIButton) {
+        board.reset()
+        board.randomiseMines(mineProbability: 0.16)
+        boardView.dead = false
+        boardView.setNeedsDisplay()
+    }
+    
+    @IBAction func tappedReset(_ sender: UIButton) {
+        board.reset()
+        boardView.dead = false
+        boardView.setNeedsDisplay()
+    }
+    
+    @IBAction func tappedGuess(_ sender: UIButton) {
         guard let result = Model.shared.boardSuggest(board: board) else { return }
         print(result)
     }
@@ -35,6 +50,7 @@ class ViewController: UIViewController {
         let location = sender.location(in: boardView)
         let tappedRow = Int(location.y / boardView.bounds.height * CGFloat(board.rows))
         let tappedCol = Int(location.x / boardView.bounds.width * CGFloat(board.cols))
-        board.markFree(row: tappedRow, col: tappedCol)
+        boardView.dead = board.markFree(row: tappedRow, col: tappedCol)
+        boardView.setNeedsDisplay()
     }
 }
