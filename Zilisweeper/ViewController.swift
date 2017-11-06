@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import MetalPerformanceShaders
 
 class ViewController: UIViewController {
 
@@ -23,10 +22,19 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedButton(_ sender: UIButton) {
-        let x:[Float] = Array(repeating: 1, count: 1440)
+        var x:[Float] = Array(repeating: -1, count: 1440)
+        x[0] = 1
+        x[1] = 1
+        x[12] = 1
         guard let y = Model.shared.run(input: x), let max = y.max() else { return }
         guard let i = y.index(of: max) else { return }
         print(i)
-        print((i / 12, i % 12))
+        if i < 144 {
+            print("free at \((i / 12, i % 12))")
+        }
+        else {
+            let j = i - 144
+            print("mine at \((j / 12, j % 12))")
+        }
     }
 }
