@@ -21,6 +21,8 @@
 		455083251FB04D8C00628183 /* Npz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831D1FB04D8C00628183 /* Npz.swift */; };
 		455083261FB04D8C00628183 /* Npy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831E1FB04D8C00628183 /* Npy.swift */; };
 		455083281FB05A0600628183 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083271FB05A0600628183 /* Model.swift */; };
+		4550832A1FB08FDB00628183 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083291FB08FDB00628183 /* BoardView.swift */; };
+		4550832C1FB0939800628183 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550832B1FB0939800628183 /* Board.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +44,8 @@
 		4550831D1FB04D8C00628183 /* Npz.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Npz.swift; sourceTree = "<group>"; };
 		4550831E1FB04D8C00628183 /* Npy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Npy.swift; sourceTree = "<group>"; };
 		455083271FB05A0600628183 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		455083291FB08FDB00628183 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		4550832B1FB0939800628183 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +80,8 @@
 			children = (
 				455082FE1FB0490400628183 /* AppDelegate.swift */,
 				455083001FB0490400628183 /* ViewController.swift */,
+				455083291FB08FDB00628183 /* BoardView.swift */,
+				4550832B1FB0939800628183 /* Board.swift */,
 				455083271FB05A0600628183 /* Model.swift */,
 				455083161FB04D8C00628183 /* SwiftNpy */,
 				455083101FB049BB00628183 /* b.npy */,
@@ -179,7 +185,9 @@
 			files = (
 				455083281FB05A0600628183 /* Model.swift in Sources */,
 				455083221FB04D8C00628183 /* NpyLoader.swift in Sources */,
+				4550832A1FB08FDB00628183 /* BoardView.swift in Sources */,
 				455083261FB04D8C00628183 /* Npy.swift in Sources */,
+				4550832C1FB0939800628183 /* Board.swift in Sources */,
 				455083011FB0490400628183 /* ViewController.swift in Sources */,
 				455083231FB04D8C00628183 /* NpyHeader.swift in Sources */,
 				455083201FB04D8C00628183 /* DataType.swift in Sources */,

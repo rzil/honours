@@ -9,11 +9,16 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    @IBOutlet weak var boardView: BoardView!
+    
+    var board = Board()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        boardView.board = board
     }
     
     override func didReceiveMemoryWarning() {
@@ -36,5 +41,12 @@ class ViewController: UIViewController {
             let j = i - 144
             print("mine at \((j / 12, j % 12))")
         }
+    }
+    
+    @IBAction func tappedBoardView(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: boardView)
+        let tappedRow = Int(location.y / boardView.bounds.height * CGFloat(board.rows))
+        let tappedCol = Int(location.x / boardView.bounds.width * CGFloat(board.cols))
+        board.markFree(row: tappedRow, col: tappedCol)
     }
 }
