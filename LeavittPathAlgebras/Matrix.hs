@@ -84,6 +84,9 @@ mainDiagonal_ [] = []
 mainDiagonal_ ([]:_) = []
 mainDiagonal_ ((p:_):rs) = p : mainDiagonal_ (map tail rs)
 
+trace :: Num c => Matrix c -> c
+trace = sum . mainDiagonal
+
 mainDiagonal :: Matrix a -> [a]
 mainDiagonal (Matrix m) = mainDiagonal_ m
 
