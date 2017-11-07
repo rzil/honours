@@ -42,8 +42,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedGuess(_ sender: UIButton) {
-        guard let result = Model.shared.boardSuggest(board: board) else { return }
-        print(result)
+        guard let guess = Model.shared.boardSuggest(board: board) else { return }
+        boardView.guess = guess
+        boardView.setNeedsDisplay()
+        print(guess)
     }
     
     @IBAction func tappedBoardView(_ sender: UITapGestureRecognizer) {
@@ -51,6 +53,7 @@ class ViewController: UIViewController {
         let tappedRow = Int(location.y / boardView.bounds.height * CGFloat(board.rows))
         let tappedCol = Int(location.x / boardView.bounds.width * CGFloat(board.cols))
         boardView.dead = board.markFree(row: tappedRow, col: tappedCol)
+        boardView.guess = nil
         boardView.setNeedsDisplay()
     }
 }

@@ -16,6 +16,8 @@ class BoardView: UIView {
         }
     }
     
+    var guess: (free: Bool, row: Int, col: Int)?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         layer.borderWidth = 1
@@ -29,6 +31,19 @@ class BoardView: UIView {
         let colWidth = bounds.width / CGFloat(board.cols)
         
         guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        
+        // draw guess
+        
+        if let (free,row,col) = self.guess {
+            let rect = CGRect(x: colWidth * CGFloat(col), y: rowHeight * CGFloat(row), width: colWidth, height: rowHeight)
+            if free {
+                UIColor.blue.setFill()
+            }
+            else {
+                UIColor.magenta.setFill()
+            }
+            UIRectFill(rect)
+        }
         
         // draw cell outlines
         
@@ -45,6 +60,7 @@ class BoardView: UIView {
         }
         
         // draw adjacency info
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         
