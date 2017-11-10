@@ -168,7 +168,7 @@ class Model {
     }
     
     func boardSuggest(board:Board) -> (free:Bool, row: Int, col: Int)? {
-        var x:[Float] = Array(repeating: -1, count: 1440)
+        var x:[Float] = Array(repeating: -1, count: board.rows*board.cols*10)
         
         for (i,a) in board.adjacency.enumerated() {
             var oneHotVec:[Float] = Array(repeating: 0, count: 10)
@@ -181,12 +181,12 @@ class Model {
         guard let y = run(input: x), let max = y.max() else { return nil }
         guard let i = y.index(of: max) else { return nil }
         print(i)
-        if i < 144 {
-            return (free: true, row: i / 12, col: i % 12)
+        if i < board.rows*board.cols {
+            return (free: true, row: i / board.cols, col: i % board.cols)
         }
         else {
-            let j = i - 144
-            return (free: false, row: j / 12, col: j % 12)
+            let j = i - board.rows*board.cols
+            return (free: false, row: j / board.cols, col: j % board.cols)
         }
     }
 }

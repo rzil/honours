@@ -9,8 +9,8 @@
 import Foundation
 
 class Board {
-    var rows: Int = 12
-    var cols: Int = 12
+    var rows: Int = 8
+    var cols: Int = 8
     
     var mines: [Bool]
     var adjacency: [Int]
