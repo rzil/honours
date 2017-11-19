@@ -30,11 +30,10 @@ x_res = x_res0;
 x_in = as(1);
 ys = zeros([1,n+20]);
 
-for k = 1:(n+20)
-  ys(k) = x_in;
-  y = M * vertcat(x_in, x_res);
-  x_in = y(1);
-  x_res = y(2:end);
+y = vertcat(x_in, x_res);
+for k = 1:(n+number_of_guesses)
+  ys(k) = y(1);
+  y = M * y;
 end
 
 # spectral radius of M. Should be approximately 1.
