@@ -1,5 +1,5 @@
 # Implementation of predictive neural net
-# Based on Frieder Stolzenberger talk at WSU
+# Based on Frieder Stolzenburg talk at WSU
 # Applied to the Riemann-Zeta function on the critical strip
 
 pkg load specfun;   # for the Riemann zeta function
@@ -11,22 +11,15 @@ M_res = complex(normrnd(0,1/sqrt(s*(n+1)),n), normrnd(0,1/sqrt(s*(n+1)),n));
 M_in = complex(normrnd(0,1/sqrt(s*(n+1)),[n,1]), normrnd(0,1/sqrt(s*(n+1)),[n,1]));
 x_res = complex(normrnd(0,1/sqrt(s*(n+1)),[n,1]), normrnd(0,1/sqrt(s*(n+1)),[n,1]));
 
-%{
-M = randU(n+1);
-M_res = M(2:end,2:end);
-M_in = M(:,1)(2:end);
-x_res = transpose(M(1,:)(2:end));
-%}
-
 x_res0 = x_res;
 
 function y = f(x)
   #y = sin(x);
   #y = zeta(x+1);
-  y = zeta(0.5 + i*(x+20000));
+  y = zeta(0.5 + i*(x+100));
 end
 
-xs = linspace(0.1,10,8*n);
+xs = linspace(0,4*pi,4*n+1);
 as = arrayfun(@f, xs);
 
 A = zeros([n+1,n+1]);
@@ -41,7 +34,7 @@ M_out = A\transpose(as(2:n+2));
 M = vertcat(transpose(M_out), [M_in, M_res]);
 
 # test
-number_of_guesses = 400;
+number_of_guesses = 200;
 x_res = x_res0;
 ys = zeros([1,n+number_of_guesses]);
 
@@ -54,6 +47,7 @@ end
 # save this as new input
 x_in = y;
 
+# make some predictions
 for k = n+1:n+number_of_guesses
   ys(k) = y(1);
   y = M * y;
@@ -77,23 +71,21 @@ A = V(1,:) .* transpose(U);
 
 dimensions = size(find(A > 1e-5))(2)
 
-%{
 idx = find(A < 1e-5);
-idx = idx(idx~=1);
 
-x_in(idx) = [];
-
-V(:,idx) = [];
-V(idx,:) = [];
-
-D(idx,:) = [];
-D(:,idx) = [];
-
-invV(:,idx) = [];
 invV(idx,:) = [];
 
-M = V * D * invV;
-%}
+x_hat = invV * x_in;
+
+D_hat = diag(D);
+D_hat(idx) = [];
+
+w = V(1,:);
+w(idx) = [];
+
+w
+D_hat
+x_hat
 
 # plot eigenvalues of M
 #plot(eig(M),'o')
