@@ -4,6 +4,9 @@
 
 pkg load specfun;   # for the Riemann zeta function
 
+# Optimal n seems to be around 400
+# Why does the accuracy decrease when n is too large, eg 1000?
+# Is this due to numerical errors?
 n = 399;
 
 s = 2.1;
@@ -29,6 +32,10 @@ for k = 1:(n+1)
   x_res = M_in * as(k) + M_res * x_res;
 end
 
+# Gives this message
+# warning: matrix singular to machine precision, rcond = 3.96047e-22
+# Is there a better way to generate the random matrix?
+# Or is there are more numerically stable solver?
 M_out = A\transpose(as(2:n+2));
 
 M = vertcat(transpose(M_out), [M_in, M_res]);
