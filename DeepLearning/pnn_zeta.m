@@ -76,9 +76,9 @@ invV = inv(V);
 U = invV * x_in;
 A = V(1,:) .* transpose(U);
 
-dimensions = size(find(A > 1e-5))(2)
+dimensions = size(find(abs(A) > 1e-5))(2)
 
-idx = find(A < 1e-5);
+idx = find(abs(A) < 1e-5);
 
 invV(idx,:) = [];
 
