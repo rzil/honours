@@ -12,8 +12,6 @@
 		455083041FB0490400628183 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 455083021FB0490400628183 /* Main.storyboard */; };
 		455083061FB0490400628183 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 455083051FB0490400628183 /* Assets.xcassets */; };
 		455083091FB0490400628183 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 455083071FB0490400628183 /* LaunchScreen.storyboard */; };
-		455083121FB049BB00628183 /* b.npy in Resources */ = {isa = PBXBuildFile; fileRef = 455083101FB049BB00628183 /* b.npy */; };
-		455083131FB049BB00628183 /* W.npy in Resources */ = {isa = PBXBuildFile; fileRef = 455083111FB049BB00628183 /* W.npy */; };
 		455083201FB04D8C00628183 /* DataType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083181FB04D8C00628183 /* DataType.swift */; };
 		455083211FB04D8C00628183 /* NpySaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083191FB04D8C00628183 /* NpySaver.swift */; };
 		455083221FB04D8C00628183 /* NpyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550831A1FB04D8C00628183 /* NpyLoader.swift */; };
@@ -23,6 +21,7 @@
 		455083281FB05A0600628183 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083271FB05A0600628183 /* Model.swift */; };
 		4550832A1FB08FDB00628183 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455083291FB08FDB00628183 /* BoardView.swift */; };
 		4550832C1FB0939800628183 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4550832B1FB0939800628183 /* Board.swift */; };
+		45DE81471FB5BCC300169B7D /* Minesweeper8x8.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 45DE81461FB5BCC300169B7D /* Minesweeper8x8.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,8 +32,6 @@
 		455083051FB0490400628183 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		455083081FB0490400628183 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4550830A1FB0490400628183 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		455083101FB049BB00628183 /* b.npy */ = {isa = PBXFileReference; lastKnownFileType = file; path = b.npy; sourceTree = "<group>"; };
-		455083111FB049BB00628183 /* W.npy */ = {isa = PBXFileReference; lastKnownFileType = file; path = W.npy; sourceTree = "<group>"; };
 		455083171FB04D8C00628183 /* NpzLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpzLoader.swift; sourceTree = "<group>"; };
 		455083181FB04D8C00628183 /* DataType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataType.swift; sourceTree = "<group>"; };
 		455083191FB04D8C00628183 /* NpySaver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NpySaver.swift; sourceTree = "<group>"; };
@@ -46,6 +43,7 @@
 		455083271FB05A0600628183 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		455083291FB08FDB00628183 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		4550832B1FB0939800628183 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		45DE81461FB5BCC300169B7D /* Minesweeper8x8.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Minesweeper8x8.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,12 +82,11 @@
 				4550832B1FB0939800628183 /* Board.swift */,
 				455083271FB05A0600628183 /* Model.swift */,
 				455083161FB04D8C00628183 /* SwiftNpy */,
-				455083101FB049BB00628183 /* b.npy */,
-				455083111FB049BB00628183 /* W.npy */,
 				455083021FB0490400628183 /* Main.storyboard */,
 				455083051FB0490400628183 /* Assets.xcassets */,
 				455083071FB0490400628183 /* LaunchScreen.storyboard */,
 				4550830A1FB0490400628183 /* Info.plist */,
+				45DE81461FB5BCC300169B7D /* Minesweeper8x8.mlmodel */,
 			);
 			path = Zilisweeper;
 			sourceTree = "<group>";
@@ -168,8 +165,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				455083131FB049BB00628183 /* W.npy in Resources */,
-				455083121FB049BB00628183 /* b.npy in Resources */,
 				455083091FB0490400628183 /* LaunchScreen.storyboard in Resources */,
 				455083061FB0490400628183 /* Assets.xcassets in Resources */,
 				455083041FB0490400628183 /* Main.storyboard in Resources */,
@@ -185,6 +180,7 @@
 			files = (
 				455083281FB05A0600628183 /* Model.swift in Sources */,
 				455083221FB04D8C00628183 /* NpyLoader.swift in Sources */,
+				45DE81471FB5BCC300169B7D /* Minesweeper8x8.mlmodel in Sources */,
 				4550832A1FB08FDB00628183 /* BoardView.swift in Sources */,
 				455083261FB04D8C00628183 /* Npy.swift in Sources */,
 				4550832C1FB0939800628183 /* Board.swift in Sources */,
