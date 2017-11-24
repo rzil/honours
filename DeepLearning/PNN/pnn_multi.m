@@ -16,7 +16,6 @@ x_res = complex(normrnd(0,1/sqrt(s*n),[n-k,1]),
 x_res0 = x_res;
 
 xs = linspace(0,4*pi,4*n+1);
-#as = sin(xs);
 
 as = vertcat(arrayfun(@sin, xs),
              arrayfun(@(x) (cos(2*x+1)), xs),
@@ -64,15 +63,16 @@ err
 M_rad
 
 # Reduction of M
-%{
+epsilon = 1e-5;   # threshold for dimension reduction
+
 [V,D] = eig(M);
 invV = inv(V);
 U = invV * x_in;
-A = V(1,:) .* transpose(U);
+A = V(1:k,:) .* transpose(U);
 
-dimensions = size(find(abs(A) > 1e-5))(2)
+idx = find(prod(abs(A) < epsilon, 1));
 
-idx = find(abs(A) < 1e-5);
+dimensions = n - size(idx)(2)
 
 invV(idx,:) = [];
 
@@ -81,8 +81,8 @@ x_hat = invV * x_in;
 D_hat = diag(D);
 D_hat(idx) = [];
 
-w = V(1,:);
-w(idx) = [];
+w = V(1:k,:);
+w(:,idx) = [];
 
 w
 D_hat
@@ -92,4 +92,3 @@ x_hat
 #plot(eig(M),'o')
 
 # plot(sort(abs(eig(M))) .^ 2)
-%}
