@@ -7,38 +7,41 @@ pkg load specfun;   # for the Riemann zeta function
 # Optimal n seems to be around 400
 # Why does the accuracy decrease when n is too large, eg 1000?
 # Is this due to numerical errors?
-n = 399;
+n = 100;
 
 s = 2.1;
-M_res = complex(normrnd(0,1/sqrt(s*(n+1)),n), normrnd(0,1/sqrt(s*(n+1)),n));
-M_in = complex(normrnd(0,1/sqrt(s*(n+1)),[n,1]), normrnd(0,1/sqrt(s*(n+1)),[n,1]));
-x_res = complex(normrnd(0,1/sqrt(s*(n+1)),[n,1]), normrnd(0,1/sqrt(s*(n+1)),[n,1]));
+W_res = complex(normrnd(0,1/sqrt(s*n),n-1),
+                normrnd(0,1/sqrt(s*n),n-1));
+W_in = complex(normrnd(0,1/sqrt(s*n),[n-1,1]),
+               normrnd(0,1/sqrt(s*n),[n-1,1]));
+x_res = complex(normrnd(0,1/sqrt(s*n),[n-1,1]),
+                normrnd(0,1/sqrt(s*n),[n-1,1]));
 
 x_res0 = x_res;
 
 function y = f(x)
-  #y = sin(x);
+  y = sin(x);
   #y = zeta(x+1);
-  y = zeta(0.5 + i*(x+100));
+  #y = zeta(0.5 + i*(x+100));
 end
 
 xs = linspace(0,4*pi,4*n+1);
 as = arrayfun(@f, xs);
 
-A = zeros([n+1,n+1]);
+A = zeros(n);
 
-for k = 1:(n+1)
+for k = 1:n
   A(k,:) = vertcat(as(k), x_res);
-  x_res = M_in * as(k) + M_res * x_res;
+  x_res = W_in * as(k) + W_res * x_res;
 end
 
 # Gives this message
 # warning: matrix singular to machine precision, rcond = 3.96047e-22
 # Is there a better way to generate the random matrix?
 # Or is there are more numerically stable solver?
-M_out = A\transpose(as(2:n+2));
+W_out = A\transpose(as(2:n+1));
 
-M = vertcat(transpose(M_out), [M_in, M_res]);
+M = vertcat(transpose(W_out), [W_in, W_res]);
 
 # test
 number_of_guesses = 200;
