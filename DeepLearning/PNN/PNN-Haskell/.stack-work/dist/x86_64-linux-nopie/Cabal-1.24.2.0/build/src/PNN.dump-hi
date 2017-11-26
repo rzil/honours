@@ -1,0 +1,356 @@
+
+==================== FINAL INTERFACE ====================
+2017-11-25 15:58:29.019978974 UTC
+
+interface PNN-Haskell-0.1.0.0-I7lFOLG7az38DKruIdP3NP:PNN 8002
+  interface hash: 19a5d51b8aa462726b612e6b75471a49
+  ABI hash: 297e94d76d029ea487a204d4d898987b
+  export-list hash: ac0e7cc857ed6999ac7bf0cf0104550a
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 05c6dca22f9dd1832b6d5a0e6ea172a8
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  PNN.someFunc
+module dependencies:
+package dependencies: array-0.5.1.1@array-0.5.1.1 base-4.9.1.0
+                      deepseq-1.4.2.0@deepseq-1.4.2.0 ghc-prim-0.5.0.0
+                      integer-gmp-1.0.0.1 loop-0.3.0@loop-0.3.0-4tGn4RSY02pFTwJ5L4CYRr
+                      matrix-0.3.5.0@matrix-0.3.5.0-JvohPyGMusrL7Y0WxYUz8w
+                      normaldistribution-1.1.0.3@normaldistribution-1.1.0.3-4jyWUv84QRECyZXMs5GJFb
+                      primitive-0.6.2.0@primitive-0.6.2.0-4578caNkWQ54Gt1mxLF2Yh
+                      random-1.1@random-1.1-9tceXaeYIMZ4JrKq20Egog
+                      time-1.6.0.1@time-1.6.0.1 transformers-0.5.2.0@transformers-0.5.2.0
+                      vector-0.12.0.1@vector-0.12.0.1-692PQMDMB6pIQ1uGwefDcQ
+orphans: base-4.9.1.0:GHC.Base base-4.9.1.0:GHC.Float
+         time-1.6.0.1@time-1.6.0.1:Data.Time.Calendar.Gregorian
+         time-1.6.0.1@time-1.6.0.1:Data.Time.Format.Parse
+         time-1.6.0.1@time-1.6.0.1:Data.Time.LocalTime.LocalTime
+         transformers-0.5.2.0@transformers-0.5.2.0:Control.Monad.Trans.Error
+         vector-0.12.0.1@vector-0.12.0.1-692PQMDMB6pIQ1uGwefDcQ:Data.Vector.Fusion.Bundle
+family instance modules: base-4.9.1.0:Control.Applicative
+                         base-4.9.1.0:Data.Complex base-4.9.1.0:Data.Either
+                         base-4.9.1.0:Data.Functor.Const base-4.9.1.0:Data.Functor.Identity
+                         base-4.9.1.0:Data.List.NonEmpty base-4.9.1.0:Data.Monoid
+                         base-4.9.1.0:Data.Semigroup base-4.9.1.0:Data.Type.Equality
+                         base-4.9.1.0:Data.Version base-4.9.1.0:Data.Void
+                         base-4.9.1.0:GHC.Exts base-4.9.1.0:GHC.Generics
+                         base-4.9.1.0:GHC.IO.Exception base-4.9.1.0:GHC.TypeLits
+                         primitive-0.6.2.0@primitive-0.6.2.0-4578caNkWQ54Gt1mxLF2Yh:Control.Monad.Primitive
+                         primitive-0.6.2.0@primitive-0.6.2.0-4578caNkWQ54Gt1mxLF2Yh:Data.Primitive.Array
+                         vector-0.12.0.1@vector-0.12.0.1-692PQMDMB6pIQ1uGwefDcQ:Data.Vector
+import  -/  base-4.9.1.0:Data.Complex ec864ed8b68bbdf9c6cffa700c3cfe8e
+import  -/  base-4.9.1.0:GHC.Float 33e2b9ffe427edd6a5c2fd6a3b26703c
+import  -/  base-4.9.1.0:GHC.List ab8c4e523e6c479c549d3bcd5fc4a439
+import  -/  base-4.9.1.0:GHC.Num 00bfaa7b2f9d6084913c0697a8a49ec8
+import  -/  base-4.9.1.0:GHC.Real 82e4e59051a13dba1da63e1e970a69e6
+import  -/  base-4.9.1.0:Prelude 22dd289b8469a8fa8dc81cab7b237771
+import  -/  base-4.9.1.0:System.IO e4a64a8e3dce8616da54f0ee7104f7db
+import  -/  ghc-prim-0.5.0.0:GHC.Types 89f8de4f08018c9177c98d979eae0e45
+import  -/  matrix-0.3.5.0@matrix-0.3.5.0-JvohPyGMusrL7Y0WxYUz8w:Data.Matrix ae8095010fe45e3f959949e07cc86584
+import  -/  normaldistribution-1.1.0.3@normaldistribution-1.1.0.3-4jyWUv84QRECyZXMs5GJFb:Data.Random.Normal e29d88b1ded58a3e38c82603f20c9dc7
+ab3f848bb180da2fcf9b8f04343e2bae
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module PNN.$trModule2 PNN.$trModule1) -}
+d67403476b2e04d053b675a6e019ebe6
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "PNN"#) -}
+20f0f02de306aba3136310d168a96bfe
+  $trModule2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS
+                   "PNN-Haskell-0.1.0.0-I7lFOLG7az38DKruIdP3NP"#) -}
+7ac3a3fe4e78d20accaca8b461c5c792
+  someFunc :: GHC.Types.IO ()
+  {- Arity: 1, Strictness: <S,U>,
+     Unfolding: InlineRule (0, True, True)
+                PNN.someFunc1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
+3c77d2d54ad912e75baa978955194ca4
+  someFunc1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>,
+     Unfolding: (\ (s :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        PNN.someFunc27
+                        GHC.Types.True
+                        s of ds1 { (#,#) ipv ipv1 ->
+                 GHC.IO.Handle.Text.hPutStr2
+                   GHC.IO.Handle.FD.stdout
+                   PNN.someFunc2
+                   GHC.Types.True
+                   ipv }) -}
+d6581d0eb135174e680cb90e11f4f321
+  someFunc10 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc23
+                   PNN.someFunc11) -}
+54ddb296960a88aa54c3520dc1583c84
+  someFunc11 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc24
+                   PNN.someFunc12) -}
+b34b14a099a03ebc0c2e7fd6fc325103
+  someFunc12 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc23
+                   PNN.someFunc13) -}
+4e3fe28d98f32c5efd28e0f44e83d98c
+  someFunc13 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc22
+                   PNN.someFunc14) -}
+e20fd5efda962eea75e9ae78adcb111c
+  someFunc14 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc21
+                   PNN.someFunc15) -}
+05d2ae6966086d687e961a8497bf60ce
+  someFunc15 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc20
+                   PNN.someFunc16) -}
+4cca219b62777aacdc61a678b7a7dd0b
+  someFunc16 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc19
+                   PNN.someFunc17) -}
+cc77f58baf64045c723fec8652626155
+  someFunc17 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc18
+                   (GHC.Types.[] @ GHC.Types.Double)) -}
+649afc2aeb7a2db430d83f958e5ee26d
+  someFunc18 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 7.0##) -}
+e1ea6d21704f41383bfae4c887814415
+  someFunc19 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 2.0##) -}
+145f276ae91db293faf2916484f9a3c4
+  someFunc2 :: GHC.Base.String
+  {- Unfolding: (case Data.Matrix.$wrref
+                        @ GHC.Types.Double
+                        GHC.Float.$fFractionalDouble
+                        GHC.Classes.$fEqDouble
+                        3#
+                        4#
+                        0#
+                        0#
+                        4#
+                        PNN.someFunc4 of wild {
+                   Data.Either.Left b1
+                   -> GHC.Base.++
+                        @ GHC.Types.Char
+                        Data.Either.$fShowEither3
+                        (GHC.Types.:
+                           @ GHC.Types.Char
+                           GHC.Show.shows6
+                           (GHC.Show.showLitString b1 PNN.someFunc3))
+                   Data.Either.Right b1
+                   -> GHC.Base.++
+                        @ GHC.Types.Char
+                        Data.Either.$fShowEither2
+                        (case b1 of ww { Data.Matrix.M ww1 ww2 ww3 ww4 ww5 ww6 ->
+                         Data.Matrix.$wprettyMatrix
+                           @ GHC.Types.Double
+                           GHC.Float.$fShowDouble
+                           ww1
+                           ww2
+                           ww3
+                           ww4
+                           ww5
+                           ww6 }) }) -}
+5d1029d7ca0f5eabf53047a42fa56a0f
+  someFunc20 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 5.0##) -}
+91d30a74b0584d95ae388009fe273d13
+  someFunc21 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 1.0##) -}
+90d02ab9e13f9966a805f0a170bbfb9e
+  someFunc22 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 0.0##) -}
+43418148b573035a68695601e0b88ebf
+  someFunc23 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 9.0##) -}
+ad7cd2b45996e98b7b53e40e0e94a41b
+  someFunc24 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 3.0##) -}
+6dda7a55b35ecb71661e148685eea7b6
+  someFunc25 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 8.0##) -}
+dd415cedde453a82c97034af3e58d33d
+  someFunc26 :: GHC.Types.Double
+  {- HasNoCafRefs, Unfolding: (GHC.Types.D# 6.0##) -}
+a07c543e9f87c85e5f68d6fe2a8f1438
+  someFunc27 :: GHC.Base.String
+  {- Unfolding: (Data.Matrix.$wprettyMatrix
+                   @ GHC.Types.Double
+                   GHC.Float.$fShowDouble
+                   3#
+                   4#
+                   0#
+                   0#
+                   4#
+                   PNN.someFunc4) -}
+8e5a8edbe96af7595ead981689057136
+  someFunc3 :: [GHC.Types.Char]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   GHC.Show.shows6
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+9db83bc71636b67787314afa3ca33420
+  someFunc4 :: Data.Vector.Vector GHC.Types.Double
+  {- Unfolding: (case GHC.Magic.runRW#
+                        @ 'GHC.Types.PtrRepLifted
+                        @ (Data.Vector.Vector GHC.Types.Double)
+                        PNN.someFunc5 of ds1 { (#,#) ipv1 ipv2 ->
+                 ipv2 }) -}
+4de9fce52aa661af11b4d36e4b90eb60
+  someFunc5 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld,
+          Data.Vector.Vector GHC.Types.Double #)
+  {- Arity: 1,
+     Unfolding: (\ (s1 :: GHC.Prim.State#
+                            GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.Prim.newArray#
+                        @ GHC.Types.Double
+                        @ (Control.Monad.Primitive.PrimState
+                             (GHC.ST.ST GHC.Prim.RealWorld))
+                        12#
+                        (Data.Vector.Mutable.uninitialised @ GHC.Types.Double)
+                        s1
+                          `cast`
+                        (GHC.Prim.State#
+                           (Sym (Control.Monad.Primitive.D:R:PrimStateST[0]
+                                     <GHC.Prim.RealWorld>_N)))_R of ds1 { (#,#) ipv ipv1 ->
+                 letrec {
+                   $wfoldlM'_loop :: GHC.Types.SPEC
+                                     -> GHC.Prim.Int#
+                                     -> [GHC.Types.Double]
+                                     -> GHC.Prim.Int#
+                                     -> GHC.Prim.State# GHC.Prim.RealWorld
+                                     -> (# GHC.Prim.State# GHC.Prim.RealWorld, GHC.Types.Int #)
+                     {- Arity: 5, Strictness: <S,1*U><L,U><L,1*U><S,U><S,U>,
+                        Inline: [0] -}
+                   = \ (w :: GHC.Types.SPEC)
+                       (ww :: GHC.Prim.Int#)
+                       (ww1 :: [GHC.Types.Double])
+                       (ww2 :: GHC.Prim.Int#)
+                       (w1 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                     case w of ds5 { DEFAULT ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# ww2 0#) of wild1 {
+                       GHC.Types.False
+                       -> case ww1 of wild2 {
+                            [] -> (# w1, GHC.Types.I# ww #)
+                            : x xs1
+                            -> case GHC.Prim.writeArray#
+                                      @ (Control.Monad.Primitive.PrimState
+                                           (GHC.ST.ST GHC.Prim.RealWorld))
+                                      @ GHC.Types.Double
+                                      ipv1
+                                      ww
+                                      x
+                                      w1
+                                        `cast`
+                                      (GHC.Prim.State#
+                                         (Sym (Control.Monad.Primitive.D:R:PrimStateST[0]
+                                                   <GHC.Prim.RealWorld>_N)))_R of s'# { DEFAULT ->
+                               $wfoldlM'_loop
+                                 GHC.Types.SPEC
+                                 (GHC.Prim.+# ww 1#)
+                                 xs1
+                                 (GHC.Prim.-# ww2 1#)
+                                 s'#
+                                   `cast`
+                                 (GHC.Prim.State#
+                                    (Control.Monad.Primitive.D:R:PrimStateST[0]
+                                         <GHC.Prim.RealWorld>_N))_R } }
+                       GHC.Types.True -> (# w1, GHC.Types.I# ww #) } }
+                 } in
+                 case $wfoldlM'_loop
+                        GHC.Types.SPEC
+                        0#
+                        PNN.someFunc6
+                        12#
+                        ipv
+                          `cast`
+                        (GHC.Prim.State#
+                           (Control.Monad.Primitive.D:R:PrimStateST[0]
+                                <GHC.Prim.RealWorld>_N))_R of ds2 { (#,#) ipv6 ipv7 ->
+                 case ipv7 of dt5 { GHC.Types.I# dt6 ->
+                 case GHC.Prim.unsafeFreezeArray#
+                        @ (Control.Monad.Primitive.PrimState
+                             (GHC.ST.ST GHC.Prim.RealWorld))
+                        @ GHC.Types.Double
+                        ipv1
+                        ipv6
+                          `cast`
+                        (GHC.Prim.State#
+                           (Sym (Control.Monad.Primitive.D:R:PrimStateST[0]
+                                     <GHC.Prim.RealWorld>_N)))_R of ds { (#,#) ipv2 ipv3 ->
+                 (# ipv2
+                      `cast`
+                    (GHC.Prim.State#
+                       (Control.Monad.Primitive.D:R:PrimStateST[0]
+                            <GHC.Prim.RealWorld>_N))_R,
+                    Data.Vector.Vector @ GHC.Types.Double 0# dt6 ipv3 #) } } } }) -}
+a16e8b704cb8cd6b4430c57dcf6f0add
+  someFunc6 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc21
+                   PNN.someFunc7) -}
+d26d601bfa6e1c426049a036c563b02b
+  someFunc7 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc26
+                   PNN.someFunc8) -}
+e4a4f03befbffb899c3122924e758f5f
+  someFunc8 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc19
+                   PNN.someFunc9) -}
+831ba9b3bc95a3c302bebe3aa97edb36
+  someFunc9 :: [GHC.Types.Double]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Double
+                   PNN.someFunc25
+                   PNN.someFunc10) -}
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+

@@ -1,0 +1,88 @@
+Configuring numeric-quest-0.2.0.1...
+Building numeric-quest-0.2.0.1...
+Preprocessing library numeric-quest-0.2.0.1...
+[1 of 8] Compiling Tensor           ( Tensor.lhs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/Tensor.o )
+
+Tensor.lhs:558:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘contract’: Patterns not matched: _ _ _
+[2 of 8] Compiling Roots            ( Roots.hs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/Roots.o )
+[3 of 8] Compiling QuantumVector    ( QuantumVector.lhs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/QuantumVector.o )
+
+QuantumVector.lhs:374:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘toBra’: Patterns not matched: KetZero
+
+QuantumVector.lhs:489:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘toKet’:
+        Patterns not matched:
+            BraZero
+            (_ :<| BraZero)
+            (_ :<| (_ :<| _))
+            (_ :<| (_ :<+ _))
+
+QuantumVector.lhs:760:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘label’:
+        Patterns not matched:
+            _ KetZero
+            _ (_ :|> _)
+            _ (_ :+> _)
+
+QuantumVector.lhs:773:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘rot’:
+        Patterns not matched:
+            KetZero
+            (_ :|> _)
+            (_ :+> _)
+
+QuantumVector.lhs:869:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘label'’:
+        Patterns not matched:
+            KetZero
+            (_ :|> _)
+            (_ :+> _)
+
+QuantumVector.lhs:910:3: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘rot'’:
+        Patterns not matched:
+            KetZero
+            (_ :|> _)
+            (_ :+> _)
+[4 of 8] Compiling Orthogonals      ( Orthogonals.lhs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/Orthogonals.o )
+
+Orthogonals.lhs:325:12: warning: [-Wmissing-methods]
+    • No explicit implementation for
+        ‘norm’
+    • In the instance declaration for ‘Scalar (Ratio a)’
+
+Orthogonals.lhs:1615:13: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In an equation for ‘solve_row’: Patterns not matched: [] _ _
+[5 of 8] Compiling LinearAlgorithms ( LinearAlgorithms.hs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/LinearAlgorithms.o )
+[6 of 8] Compiling Fraction         ( Fraction.hs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/Fraction.o )
+[7 of 8] Compiling EigensystemNum   ( EigensystemNum.hs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/EigensystemNum.o )
+
+EigensystemNum.hs:36:1: warning: [-Wtabs]
+    Tab character found here, and in one further location.
+    Please use spaces instead.
+[8 of 8] Compiling Eigensystem      ( Eigensystem.hs, .stack-work/dist/x86_64-linux-nopie/Cabal-1.24.2.0/build/Eigensystem.o )
+
+Eigensystem.hs:82:1: warning: [-Wunused-top-binds]
+    Defined but not used: ‘eigenpairs’
+
+Eigensystem.hs:143:1: warning: [-Wunused-top-binds]
+    Defined but not used: ‘matrixA’
+
+Eigensystem.hs:154:1: warning: [-Wunused-top-binds]
+    Defined but not used: ‘opA’
+
+Eigensystem.hs:157:1: warning: [-Wunused-top-binds]
+    Defined but not used: ‘basisA’
+Installing library in
+/home/ruben/.stack/snapshots/x86_64-linux-nopie/lts-9.14/8.0.2/lib/x86_64-linux-ghc-8.0.2/numeric-quest-0.2.0.1-JoSQoej7t8GHfGm7xWFcID
+Registering numeric-quest-0.2.0.1...
