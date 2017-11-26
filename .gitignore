@@ -3,3 +3,4 @@
 .DS_Store
 events.out.tfevents*
 saves.tf*
+.stack-work
