@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/bin"
-libdir     = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/lib/x86_64-linux-ghc-8.0.2/PNN-Haskell-0.1.0.0-1Rk6QNiCN7LFQy8c5gZ6at"
-dynlibdir  = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/lib/x86_64-linux-ghc-8.0.2"
-datadir    = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/share/x86_64-linux-ghc-8.0.2/PNN-Haskell-0.1.0.0"
-libexecdir = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/libexec"
-sysconfdir = "/home/ruben/Documents/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/etc"
+bindir     = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/bin"
+libdir     = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/lib/x86_64-linux-ghc-8.0.2/PNN-Haskell-0.1.0.0-1Rk6QNiCN7LFQy8c5gZ6at"
+dynlibdir  = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/lib/x86_64-linux-ghc-8.0.2"
+datadir    = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/share/x86_64-linux-ghc-8.0.2/PNN-Haskell-0.1.0.0"
+libexecdir = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/libexec"
+sysconfdir = "/home/ruben/Documents/honours/DeepLearning/PNN/PNN-Haskell/.stack-work/install/x86_64-linux-nopie/lts-9.14/8.0.2/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "PNN_Haskell_bindir") (\_ -> return bindir)

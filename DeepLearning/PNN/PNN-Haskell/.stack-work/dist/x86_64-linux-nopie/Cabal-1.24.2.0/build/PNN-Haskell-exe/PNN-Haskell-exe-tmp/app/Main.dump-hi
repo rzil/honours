@@ -1,11 +1,11 @@
 
 ==================== FINAL INTERFACE ====================
-2017-11-25 15:55:29.126908964 UTC
+2017-11-26 06:24:40.539383522 UTC
 
 interface main@main:Main 8002
-  interface hash: 1ad31c7259f9bbab7fa628ebb1507532
-  ABI hash: 3fdf620b6a182104a14994335e4a6ed4
-  export-list hash: b6183f6c9e67a7722776e05b4fedbaed
+  interface hash: 8d0ed848c1e1a7d38f8bccaa95fe5548
+  ABI hash: 48a819e931c1e9ab8122efa751468438
+  export-list hash: 06a12444c130af456c9da96e4bdf1513
   orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
   flag hash: a7918b3c18036b8cc77def4b1c67e3ea
   sig of: Nothing
@@ -14,7 +14,7 @@ interface main@main:Main 8002
 exports:
   Main.main
 module dependencies:
-package dependencies: PNN-Haskell-0.1.0.0@PNN-Haskell-0.1.0.0-I7lFOLG7az38DKruIdP3NP
+package dependencies: PNN-Haskell-0.1.0.0@PNN-Haskell-0.1.0.0-1Rk6QNiCN7LFQy8c5gZ6at
                       array-0.5.1.1@array-0.5.1.1 base-4.9.1.0
                       deepseq-1.4.2.0@deepseq-1.4.2.0 ghc-prim-0.5.0.0
                       integer-gmp-1.0.0.1 loop-0.3.0@loop-0.3.0-4tGn4RSY02pFTwJ5L4CYRr
@@ -41,7 +41,7 @@ family instance modules: base-4.9.1.0:Control.Applicative
                          primitive-0.6.2.0@primitive-0.6.2.0-4578caNkWQ54Gt1mxLF2Yh:Control.Monad.Primitive
                          primitive-0.6.2.0@primitive-0.6.2.0-4578caNkWQ54Gt1mxLF2Yh:Data.Primitive.Array
                          vector-0.12.0.1@vector-0.12.0.1-692PQMDMB6pIQ1uGwefDcQ:Data.Vector
-import  -/  PNN-Haskell-0.1.0.0@PNN-Haskell-0.1.0.0-I7lFOLG7az38DKruIdP3NP:PNN 297e94d76d029ea487a204d4d898987b
+import  -/  PNN-Haskell-0.1.0.0@PNN-Haskell-0.1.0.0-1Rk6QNiCN7LFQy8c5gZ6at:PNN 62a4386ff8f749c4ab46247c4da614c4
 import  -/  base-4.9.1.0:Prelude 22dd289b8469a8fa8dc81cab7b237771
 import  -/  ghc-prim-0.5.0.0:GHC.Types 89f8de4f08018c9177c98d979eae0e45
 d6831ef04cb9301b090dfae6f7bb7ec7
@@ -56,12 +56,12 @@ d6831ef04cb9301b090dfae6f7bb7ec7
   $trModule2 :: GHC.Types.TrName
   {- HasNoCafRefs, Strictness: m1,
      Unfolding: (GHC.Types.TrNameS "main"#) -}
-f4f8c0d4234fda727d964872be06f349
+4d9bf4e17779c6fff3b74fe956467d72
   main :: GHC.Types.IO ()
   {- Arity: 1, Strictness: <S,U>,
      Unfolding: InlineRule (0, True, True)
                 PNN.someFunc1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
-3189613a1c3f3cf2ff67ba533e3ef977
+a575c409d12cada861108f5a339deafd
   main1 ::
     GHC.Prim.State# GHC.Prim.RealWorld
     -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
