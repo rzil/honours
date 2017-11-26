@@ -4,16 +4,25 @@ import Data.Complex
 import qualified Data.Vector as V
 import Data.Matrix
 import Data.Random.Normal
+import Data.List (sortBy)
+import Data.Number.BigFloat
 
-n = 100 :: Int
+type BF = BigFloat Prec50
+
+n = 50 :: Int
 k = 3 :: Int
 
 s = 2.1 :: Double
 sd = 1 / sqrt(s * (fromIntegral n))
-seed = 231
+seed = 1
 
 makeComplex (x:y:xs) = (x :+ y) : makeComplex xs
-complexes = makeComplex (mkNormals' (0,sd) seed)
+
+mkBigNormals' :: (Double,Double) -> Int -> [BF]
+mkBigNormals' (u,sd) seed = map (fromRational . toRational)
+   (mkNormals' (u,sd) seed)
+
+complexes = makeComplex (mkBigNormals' (0,sd) seed)
 
 w_res = fromList (n-k) (n-k) complexes
 w_in = fromList (n-k) k $ drop (nrows w_res * ncols w_res) complexes
@@ -23,7 +32,7 @@ x_res = V.fromList $ take (n-k) $ drop (nrows w_res * ncols w_res +
 -- function to predict
 -- vector should have length k
 as c = let c' = 0.01 * (fromIntegral c) in
-  V.fromList [sin c',
+  V.fromList [sin c' + 0.1,
               cos (2*c'+1),
               3*(sin (c'+1)) - cos (3*c' + 2)]
 
@@ -54,20 +63,30 @@ w_out =
 
 solve m = backsub (triangular m)
  where
+   sortRows = sortBy (\(r:_) (s:_) -> compare (realPart$abs s) (realPart$abs r))
+   triangular = triangular' . sortRows
+
    downsub (u:us) (v:vs) = zipWith (-) (map ((v / u) *) us) vs
 
-   triangular [] = []
-   triangular rs | all (0 ==) (map head rs) = error "underdetermined"
-   triangular ((0:r):rs) = triangular (rs ++ [0:r])
-   triangular ((p:xs):rs) =
+   triangular' [] = []
+   triangular' rs | all (0 ==) (map head rs) = error "underdetermined"
+   triangular' ((p:xs):rs) =
      let r = 1 : map (/ p) xs
          ss = map (downsub r) rs
-     in r :  (triangular ss)
+     in r :  (triangular' ss)
 
    backsubOne (u:us) (1:vs) = zipWith (-) us (map (u *) vs)
    backsub' us [] = us
    backsub' us (v:vs) = backsub' ((tail v) : map (flip backsubOne v) us) vs
    backsub rs = reverse (backsub' [] rs)
+
+{-
+solve' m =
+ let rows = length m
+     a = map (take rows) m
+     b = map (drop rows) m
+ in L.transpose (O.many_kets_solution (L.transpose a) (L.transpose b))
+-}
 
 w_out = let m = mat_a <|> (fromVectors (map as [1..n]))
         in fromLists (solve (toLists m))
