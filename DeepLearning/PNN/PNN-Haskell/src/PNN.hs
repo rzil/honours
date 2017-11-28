@@ -6,11 +6,12 @@ import Data.Matrix
 import Data.Random.Normal
 import Data.List (sortBy)
 import Data.Number.BigFloat
+import Math.NumberTheory.Zeta
 
 type BF = BigFloat Prec50
 
-n = 50 :: Int
-k = 3 :: Int
+n = 40 :: Int
+k = 1 :: Int
 
 s = 2.1 :: Double
 sd = 1 / sqrt(s * (fromIntegral n))
@@ -31,10 +32,16 @@ x_res = V.fromList $ take (n-k) $ drop (nrows w_res * ncols w_res +
 
 -- function to predict
 -- vector should have length k
+epsilon = 1e-40 :: BF
+zetas' = zetas epsilon
+zs = [z :+ 0 | z <- zetas']
+as c = V.singleton (zs !! (c+2))
+{-
 as c = let c' = 0.01 * (fromIntegral c) in
   V.fromList [sin c' + 0.1,
               cos (2*c'+1),
               3*(sin (c'+1)) - cos (3*c' + 2)]
+-}
 
 -- matrix / vector multiply
 (*:) mat vec = getCol 1 (multStd mat (colVector vec))
@@ -98,7 +105,8 @@ guesses = map (V.take k) (iterate (m *:) ((as 0) V.++ x_res))
 norm1 mat = maximum [V.sum (V.map (realPart . abs) (getCol c mat)) |
    c <- [1 .. ncols mat]]
 
-err = norm1 (fromVectors ((zipWith (=-=) (map as [0..]) (take n guesses))))
+number_of_guesses = 10
+err = norm1 (fromVectors ((zipWith (=-=) (map as [0..]) (take (n+number_of_guesses) guesses))))
 
 someFunc :: IO ()
 someFunc = do
