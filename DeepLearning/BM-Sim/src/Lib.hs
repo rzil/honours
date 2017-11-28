@@ -5,12 +5,13 @@ import qualified Data.Colour.RGBSpace.HSL as C
 import Data.Colour.RGBSpace
 import qualified System.Random as R
 import Data.List (zipWith4)
+import GHC.Word (Word8)
 
 import Codec.Picture( PixelRGBA8( .. ), writePng )
 import Graphics.Rasterific
 import Graphics.Rasterific.Texture
 
-frameSize = 128
+frameSize = 64
 frameSizeHalf = 0.5 * (fromIntegral frameSize)
 
 drawSystem :: String -> BMSystem -> IO ()
@@ -68,8 +69,12 @@ stepSystem c dt system = BMSystem {randoms = drop numParticles (randoms system),
    numParticles = length (particles system)
    particles' = zipWith (\r p -> p {acceleration = r}) (randoms system) (particles system)
 
+{-
 randomColours seed = f ((R.randomRs (0,360) (R.mkStdGen seed)) :: [Double])
  where f (h:hs) = let (RGB r g b) = C.hsl h 1 0.5 in PixelRGBA8 (round (255*r)) (round (255*g)) (round (255*b)) 200 : f hs
+-}
+
+randomColours seed = [PixelRGBA8 x x x 128 | x <- ((R.randomRs (0,1) (R.mkStdGen seed)) :: [Word8])]
 
 clamp l h x
  | x < l = l
@@ -85,12 +90,12 @@ randomParticles seed averageRadius sdRadius = zipWith4 (\r p c s -> p {radius = 
 
 someFunc :: IO ()
 someFunc = do
-  let seed = 2
+  let seed = 211
   let dt = 0.01
   let frames = 1000
-  let numParticles = 20
+  let numParticles = 15
   let averageRadius = 0.15
-  let sdRadius = 0.02
+  let sdRadius = 0
   let sd = 10
   let viscosity = 1.2
   let rs = makeVectors (mkNormals' (0,sd) seed)
