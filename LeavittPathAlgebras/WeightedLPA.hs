@@ -194,81 +194,10 @@ isProjection wg x = equal_wrt_graph wg x ((adjoint x) * x)
 -- the identity element is the sum of all vertices
 identity wg = foldl1 (+) (map (atom . vertex) (S.toList (vertices (graph wg))))
 
+-- lists all elements in the basis for the wLVP of the graph
+-- this may or may not be finite
+basis :: (Ord u, Ord edge, Num t) => WeightedGraph edge u -> [NormalFormAtom edge u t]
+basis weightedGraph = concat [filter (isNodPath weightedGraph) $ [NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then v else u)) [NormalFormEdge e f k | ((e,k),f) <- p] | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
+
 iso_example :: WeightedGraph String String
 iso_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u"))]) (M.fromList [("e",1),("f",2)])
-
-{-
-convertBasis g = stripZeroes . convertBasis' g
- where
-  convertBasis' graph normal
-     | isBasisForm graph normal = normal
-     | otherwise = convertBasis' graph (convertNormalForm graph (sum [convertBasisTerm graph t | t <- normal]))
-
-stripZeroes :: (Eq k, Num k) => NormalForm e v k -> NormalForm e v k
-stripZeroes [] = []
-stripZeroes ((NormalFormAtom 0 _ _ _) : xs) = stripZeroes xs
-stripZeroes (x : xs) = x : (stripZeroes xs)
-
-convertTermToBasis graph = convertBasis graph . convertNormalForm graph
-
--- logical implies
-(==>) x y = (not x) || y
-
--- lists all elements in the basis for the LVP of the graph
--- If the graph is acyclic then this will be a finite list
--- otherwise it will be an infinite list.
-basis graph = (Prelude.map (atom . vertex) (S.toList (vertices graph))) ++ pathsBasis
- where
-  pathsBasis = Prelude.map (foldl1 (*)) $ concat $ concat [[(Prelude.map ([atom$edge e | e <- es] ++) (ghostPaths k es)) | k <- [0..n], es <- S.toList $ paths graph (n-k)] | n <- ns]
-  ns = if isAcyclic graph then [1 .. 2*(length (edges graph))] else [1..]
-  ghostPaths 0 _ = [[]]
-  ghostPaths k [] = [[atom$ghostEdge g | g <- gs] | gs <- S.toList $ paths (transposeGraph graph) k, not (null gs)]
-  ghostPaths k es =
-    let e = last es
-        v = snd ((edges graph) M.! e) in [[atom$ghostEdge g | g <- gs] | gs <- S.toList $ pathsFrom (transposeGraph graph) k v, not (null gs), (isSpecialEdge graph e) ==> (head gs /= e)]
-
-vectorForm graph left right = [(fromJust $ elemIndex (NormalFormAtom 1 v es gs) bs,k) | NormalFormAtom k v es gs <- convertTermToBasis graph (left * right)]
- where
-  f [x] = x
-  bs = map (f . convertTermToBasis graph) (basis graph)
-
-matrixForm graph left = map (vectorForm graph left) (basis graph)
-
-transpose :: Mat -> Mat
-transpose cs = [[(c,x) | (Just x, c) <- zip (map (Prelude.lookup r) cs) [0..]] | r <- [0..]]
-
-showRow :: Int -> [(Int,Int)] -> String
-showRow n row = intercalate "\t" [show (maybe 0 id (Prelude.lookup i row)) | i <- [0..n]]
-
-showMat :: Int -> Mat -> IO ()
-showMat n mat = putStr $ unlines (map (showRow n) (take (2*n) $ transpose $ take n mat))
-
--- lists all elements having coefficients from a given list
--- NB: do not include 0 in the list of coefficients
-elements graph coefficients = [foldl1 (+) (zipWith (*:) cs xs) | xs <- subsequences (basis graph), not (null xs), cs <- listsLengthNFrom (length xs) coefficients]
-
--- lists all idempotents having coefficients from a given list
-idempotents graph coefficients = Zero : Prelude.filter (isIdempotent graph) (elements graph coefficients)
-
--- lists all projections having coefficients from a given list
-projections graph coefficients = Zero : Prelude.filter (isProjection graph) (elements graph coefficients)
-
--- elements having coefficients from a given list in the right annihilator of the given element
-annihilatorRight g coefficients x = Prelude.filter ((equal_wrt_graph g Zero) . (x *)) (elements g coefficients)
-
--- Examples
-
-n_loop_graph n = buildGraphFromEdges [("e" ++ show i,("v","v")) | i <- [1..n]]
-
-my_graph = buildGraphFromEdges [("a",("x","y")),("b",("x","z")),("c",("x","z"))]
-
-six_cycle_with_two_chords =
-   updateEdges (M.insert "h" ("2","5")) $ updateEdges (M.insert "f" ("1","3"))
-   (buildGraphFromEdges $ M.toList (M.map (uncurry $ on (,) show) (edges $ cycleGraph 6)))
-
-two_loop_edge1_matrix = showMat 20 (matrixForm (n_loop_graph 2) (atom$edge "e1"))
-
-three_loop_edge1_matrix = showMat 20 (matrixForm (n_loop_graph 3) (atom$edge "e1"))
-
-toeplitz_graph = buildGraphFromEdges [("f",("v","v")),("e",("v","w"))]
--}

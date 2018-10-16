@@ -41,6 +41,16 @@ updateEdges f graph = graph {vertices = S.union (vertices graph) (verticesFromEd
 graphUnion :: (Ord v, Ord e) => Graph e v -> Graph e v -> Graph e v
 graphUnion g h = Graph {vertices = S.union (vertices g) (vertices h), edges = M.union (edges g) (edges h)}
 
+directedGraphAssociatedToWeightedGraph :: (Ord v, Ord k) => WeightedGraph k v -> Graph (k, Weighting) v
+directedGraphAssociatedToWeightedGraph (WeightedGraph g w) = buildGraphFromEdges [(f,edges g M.! e) | f@(e,_) <- fs]
+ where es = M.keys (edges g)
+       fs = concat [zip (repeat e) [1 .. w M.! e] | e <- es]
+
+doubleGraph :: (Ord v, Ord k) => Graph k v -> Graph (k, Bool) v
+doubleGraph g = buildGraphFromEdges [let (u,v) = edges g M.! e in (f,if forward then (u,v) else (v,u)) | f@(e, forward) <- fs]
+ where es = M.keys (edges g)
+       fs = (map (flip (,) True) es) ++ (map (flip (,) False) es)
+
 order :: Graph e a -> Int
 order graph = length (vertices graph)
 
