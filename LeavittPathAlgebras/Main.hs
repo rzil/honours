@@ -44,8 +44,8 @@ main = do
    
  where
   bs = WLPA.basis WLPA.iso_example
-  x = bs !! 20
-  y = bs !! 90
+  x = bs !! 200
+  y = bs !! 300
   xy = WLPA.convertToBasisForm WLPA.iso_example ((WLPA.convertTerm x) * (WLPA.convertTerm y))
   
   fx = isoMapPath x

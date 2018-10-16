@@ -161,7 +161,7 @@ nodify weightedGraph t@(NormalFormAtom c v es) | isNodPath weightedGraph t = con
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e True 1 : NormalFormEdge f False 1 : es))
    | e == f = ((atom (vertex u)) - x) * (nodify weightedGraph (NormalFormAtom c v es))
    | otherwise = (negate x) * (nodify weightedGraph (NormalFormAtom c v es))
- where u = fst ((edges (graph weightedGraph)) M.! f)
+ where u = snd ((edges (graph weightedGraph)) M.! f)
        x = sum [(atom (ghostEdge e n)) * (atom (edge f n)) | n <- [2 .. vertexWeight weightedGraph u]]
 
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e False ew : NormalFormEdge f True fw : es))
