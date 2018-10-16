@@ -20,6 +20,11 @@ import qualified Data.Set as S
 
 -- | A graph is a set of vertices and a map from edges to ordered pairs of vertices
 data Graph e v = Graph {vertices :: S.Set v, edges :: M.Map e (v, v)}   deriving Show
+type Weighting = Int
+data WeightedGraph e v = WeightedGraph {graph :: Graph e v, weightings :: M.Map e Weighting}   deriving Show
+
+vertexWeight :: (Ord v, Ord k) => WeightedGraph k v -> v -> Weighting
+vertexWeight weightedGraph v = maximum (0 : [(weightings weightedGraph) M.! e | e <- M.keys (edges (graphAtSource (graph weightedGraph) v))])
 
 vertexMap :: Ord d => (v -> d) -> Graph e v -> Graph e d
 vertexMap f graph = graph {vertices = S.map f (vertices graph), edges = M.map (bimap f f) (edges graph)}
@@ -287,3 +292,9 @@ dotString graph = "digraph {\n" ++ unlines ([" " ++ (show.show) u ++ " -> " ++ (
 
 visualiseGraph :: (Show a, Ord a) => Graph e a -> IO ()
 visualiseGraph graph = writeFile "test.dot" (dotString graph) >> callCommand "dot test.dot -Tpng > test.png; open test.png"
+
+weightedDotString :: (Show a, Show e, Ord e, Ord a) => WeightedGraph e a -> String
+weightedDotString (WeightedGraph graph weighting) = "digraph {\n" ++ unlines ([let (u,v) = ((edges graph) M.! e) in " " ++ (show.show) u ++ " -> " ++ (show.show) v ++ " [ label=" ++ (show.(" " ++).(++ " ").show) (e,(weighting M.! e)) ++ " ]" | e <- M.keys (edges graph)] ++ [" " ++ (show.show) u | (u,[]) <- M.assocs (vertexForm graph)]) ++ "}\n"
+
+visualiseWeightedGraph :: (Ord a, Ord e, Show e, Show a) => WeightedGraph e a -> IO ()
+visualiseWeightedGraph weightedGraph = writeFile "test.dot" (weightedDotString weightedGraph) >> callCommand "dot test.dot -Tpng > test.png; open test.png"
