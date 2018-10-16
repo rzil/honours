@@ -142,7 +142,7 @@ isForbidden :: (Ord a, Ord b) => WeightedGraph a b -> NormalFormEdge a -> Normal
 isForbidden weightedGraph (NormalFormEdge e True 1) (NormalFormEdge f False 1) | (fst (es M.! e) == fst (es M.! f)) = True
  where es = (edges (graph weightedGraph))
 isForbidden weightedGraph (NormalFormEdge e False ew) (NormalFormEdge f True fw)
-   | isSpecialEdge weightedGraph e && e == f && ew <= fw = True
+   | isSpecialEdge weightedGraph e && e == f = True
 isForbidden _ _ _ = False
 
 isNodPath :: (Ord b, Ord a) => WeightedGraph a b -> NormalFormAtom a t1 t -> Bool
@@ -165,7 +165,7 @@ nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e True 1 : NormalFormEd
        x = sum [(atom (ghostEdge e n)) * (atom (edge f n)) | n <- [2 .. vertexWeight weightedGraph u]]
 
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e False ew : NormalFormEdge f True fw : es))
-   | isSpecialEdge weightedGraph e && e == f && ew <= fw =
+   | isSpecialEdge weightedGraph e && e == f =
       if ew == fw
       then ((atom (vertex u)) - x) * (nodify weightedGraph (NormalFormAtom c v es))
       else (negate x) * (nodify weightedGraph (NormalFormAtom c v es))
