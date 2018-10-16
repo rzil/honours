@@ -147,18 +147,23 @@ isForbidden _ _ _ = False
 
 isNodPath :: (Ord b, Ord a) => WeightedGraph a b -> NormalFormAtom a t1 t -> Bool
 isNodPath _ (NormalFormAtom _ _ []) = True
-isNodPath weightedGraph (NormalFormAtom _ _ es) = not (or (zipWith (isForbidden weightedGraph) es (tail es)))
+isNodPath weightedGraph (NormalFormAtom _ _ es) =
+   and [weightings weightedGraph M.! normalFormEdge e >= normalFormEdgeWeighting e | e <- es]
+   && not (or (zipWith (isForbidden weightedGraph) es (tail es)))
 
 isBasisForm :: (Foldable u, Ord e, Ord b) => WeightedGraph e b -> u (NormalFormAtom e v t) -> Bool
 isBasisForm graph = all (isNodPath graph)
 
 nodify :: (Ord v, Ord edge, Num k) => WeightedGraph edge v -> NormalFormAtom edge v k -> Term edge v k
+
 nodify weightedGraph t@(NormalFormAtom c v es) | isNodPath weightedGraph t = convertTerm t
+
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e True 1 : NormalFormEdge f False 1 : es))
    | e == f = ((atom (vertex u)) - x) * (nodify weightedGraph (NormalFormAtom c v es))
    | otherwise = (negate x) * (nodify weightedGraph (NormalFormAtom c v es))
  where u = fst ((edges (graph weightedGraph)) M.! f)
        x = sum [(atom (ghostEdge e n)) * (atom (edge f n)) | n <- [2 .. vertexWeight weightedGraph u]]
+
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e False ew : NormalFormEdge f True fw : es))
    | isSpecialEdge weightedGraph e && e == f && ew <= fw =
       if ew == fw
@@ -166,13 +171,16 @@ nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e False ew : NormalForm
       else (negate x) * (nodify weightedGraph (NormalFormAtom c v es))
  where u = fst ((edges (graph weightedGraph)) M.! e)
        x = sum [(atom (edge g ew)) * (atom (ghostEdge g fw)) | g <- (M.keys (edges (graphAtSource (graph weightedGraph) u))), g /= e]
+
 nodify weightedGraph (NormalFormAtom c v (e:es))
    | (weightings weightedGraph M.! normalFormEdge e < normalFormEdgeWeighting e) = 0
-   | otherwise = (convertEdge e) * (nodify weightedGraph (NormalFormAtom c v es))
+   | otherwise = (convertEdge e) * (nodify weightedGraph (NormalFormAtom c u es))
+ where u = (if normalFormEdgeIsGhost e then fst else snd) (edges (graph weightedGraph) M.! normalFormEdge e)
 
 convertToBasisForm :: (Ord vertex, Ord edge, Ord t, Num t) => WeightedGraph edge vertex -> Term edge vertex t -> [NormalFormAtom edge vertex t]
 convertToBasisForm weightedGraph term = until (all (isNodPath weightedGraph)) (f weightedGraph) (convertNormalForm weightedGraph term)
- where f weightedGraph = concatMap ((convertNormalForm weightedGraph) . (nodify weightedGraph))
+
+f weightedGraph = concatMap ((convertNormalForm weightedGraph) . (nodify weightedGraph))
 
 -- are two terms equal with respect to the given weighted graph
 equal_wrt_graph wg x y = sort (convertToBasisForm wg x) == sort (convertToBasisForm wg y)
