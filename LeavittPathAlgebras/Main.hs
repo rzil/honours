@@ -10,11 +10,7 @@ import Data.List (sort)
 import Control.Monad (liftM2)
 import Control.Monad.Omega (runOmega, each)
 
-u = (LPA.atom (LPA.vertex "u1")) + (LPA.atom (LPA.vertex "u2")) + (LPA.atom (LPA.vertex "u3"))
-v = LPA.atom (LPA.vertex "v")
-e1 = (LPA.atom (LPA.edge "e1")) + (LPA.atom (LPA.edge "e2")) + (LPA.atom (LPA.edge "e3"))
-f1 = LPA.atom (LPA.edge "f")
-f2 = (LPA.atom (LPA.edge "f")) * (LPA.atom (LPA.edge "g")) + (LPA.atom (LPA.edge "e1")) * (LPA.atom (LPA.ghostEdge "i")) + (LPA.atom (LPA.edge "e2")) * (LPA.atom (LPA.ghostEdge "h")) + (LPA.atom (LPA.edge "e3")) * (LPA.atom (LPA.ghostEdge "j"))
+import Examples
 
 isoMapEdge (WLPA.NormalFormEdge "e" False 1) = e1
 isoMapEdge (WLPA.NormalFormEdge "e" True 1) = LPA.adjoint e1
@@ -26,16 +22,16 @@ isoMapEdge (WLPA.NormalFormEdge "f" True 2) = LPA.adjoint f2
 isoMapVertex "v" = v
 isoMapVertex "u" = u
 
-isoMapPath :: WLPA.NormalFormAtom String String Int -> LPA.NormalForm String String Int
-isoMapPath (WLPA.NormalFormAtom 1 vertex []) = LPA.convertTermToBasis WLPA.unweighted_equivalent_example (isoMapVertex vertex)
-isoMapPath (WLPA.NormalFormAtom 1 vertex path) = LPA.convertTermToBasis WLPA.unweighted_equivalent_example ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
+isoMapPath :: WLPA.NormalFormAtom String String Integer -> LPA.NormalForm String String Integer
+isoMapPath (WLPA.NormalFormAtom 1 vertex []) = LPA.convertTermToBasis unweighted_equivalent_example (isoMapVertex vertex)
+isoMapPath (WLPA.NormalFormAtom 1 vertex path) = LPA.convertTermToBasis unweighted_equivalent_example ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
 isoMapPath (WLPA.NormalFormAtom c vertex path) = map (\(LPA.NormalFormAtom k v es fs) -> LPA.NormalFormAtom (c*k) v es fs) (isoMapPath (WLPA.NormalFormAtom 1 vertex path))
 
 verify
   :: WeightedGraph String String
      -> Graph String String
-     -> WLPA.NormalFormAtom String String Int
-     -> WLPA.NormalFormAtom String String Int
+     -> WLPA.NormalFormAtom String String Integer
+     -> WLPA.NormalFormAtom String String Integer
      -> Bool
 verify weightedGraph unweightedGraph x y = sort fxy == sort fxfy
  where
@@ -67,9 +63,9 @@ test weightedGraph unweightedGraph x y = do
   fxy = LPA.collectNormalFormAtoms $ concatMap isoMapPath xy
   fxfy = LPA.convertTermToBasis unweightedGraph $ (sum $ map LPA.convertTerm $ isoMapPath x) * (sum $ map LPA.convertTerm $ isoMapPath y)
 
-main = test WLPA.weighted_example WLPA.unweighted_equivalent_example x y
+main = test weighted_example unweighted_equivalent_example x y
    
  where
-  bs = WLPA.basis WLPA.weighted_example
+  bs = WLPA.basis weighted_example
   x = bs !! 30
   y = bs !! 20
