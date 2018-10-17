@@ -16,10 +16,6 @@ e1 = (LPA.atom (LPA.edge "e1")) + (LPA.atom (LPA.edge "e2")) + (LPA.atom (LPA.ed
 f1 = LPA.atom (LPA.edge "f")
 f2 = (LPA.atom (LPA.edge "f")) * (LPA.atom (LPA.edge "g")) + (LPA.atom (LPA.edge "e1")) * (LPA.atom (LPA.ghostEdge "i")) + (LPA.atom (LPA.edge "e2")) * (LPA.atom (LPA.ghostEdge "h")) + (LPA.atom (LPA.edge "e3")) * (LPA.atom (LPA.ghostEdge "j"))
 
-iso_graph_lpa = Graph (S.fromList ["u1","u2","u3","v"]) (M.fromList [("j",("u3","u3")),("i",("u3","u1")),("h",("u3","u2")),("g",("u2","u1")),("e1",("v","u1")),("e2",("v","u2")),("e3",("v","u3")),("f",("v","u2"))])
-
-eval = LPA.convertTermToBasis iso_graph_lpa
-
 isoMapEdge (WLPA.NormalFormEdge "e" False 1) = e1
 isoMapEdge (WLPA.NormalFormEdge "e" True 1) = LPA.adjoint e1
 isoMapEdge (WLPA.NormalFormEdge "f" False 1) = f1
@@ -31,8 +27,8 @@ isoMapVertex "v" = v
 isoMapVertex "u" = u
 
 isoMapPath :: WLPA.NormalFormAtom String String Int -> LPA.NormalForm String String Int
-isoMapPath (WLPA.NormalFormAtom 1 vertex []) = LPA.convertTermToBasis iso_graph_lpa (isoMapVertex vertex)
-isoMapPath (WLPA.NormalFormAtom 1 vertex path) = LPA.convertTermToBasis iso_graph_lpa ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
+isoMapPath (WLPA.NormalFormAtom 1 vertex []) = LPA.convertTermToBasis WLPA.unweighted_equivalent_example (isoMapVertex vertex)
+isoMapPath (WLPA.NormalFormAtom 1 vertex path) = LPA.convertTermToBasis WLPA.unweighted_equivalent_example ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
 isoMapPath (WLPA.NormalFormAtom c vertex path) = map (\(LPA.NormalFormAtom k v es fs) -> LPA.NormalFormAtom (c*k) v es fs) (isoMapPath (WLPA.NormalFormAtom 1 vertex path))
 
 verify
@@ -71,9 +67,9 @@ test weightedGraph unweightedGraph x y = do
   fxy = LPA.collectNormalFormAtoms $ concatMap isoMapPath xy
   fxfy = LPA.convertTermToBasis unweightedGraph $ (sum $ map LPA.convertTerm $ isoMapPath x) * (sum $ map LPA.convertTerm $ isoMapPath y)
 
-main = test WLPA.iso_example iso_graph_lpa x y
+main = test WLPA.weighted_example WLPA.unweighted_equivalent_example x y
    
  where
-  bs = WLPA.basis WLPA.iso_example
-  x = bs !! 3
-  y = bs !! 2
+  bs = WLPA.basis WLPA.weighted_example
+  x = bs !! 30
+  y = bs !! 20
