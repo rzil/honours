@@ -7,6 +7,9 @@ import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.List (sort)
 
+import Control.Monad (liftM2)
+import Control.Monad.Omega (runOmega, each)
+
 u = (LPA.atom (LPA.vertex "u1")) + (LPA.atom (LPA.vertex "u2")) + (LPA.atom (LPA.vertex "u3"))
 v = LPA.atom (LPA.vertex "v")
 e1 = (LPA.atom (LPA.edge "e1")) + (LPA.atom (LPA.edge "e2")) + (LPA.atom (LPA.edge "e3"))
@@ -27,28 +30,50 @@ isoMapEdge (WLPA.NormalFormEdge "f" True 2) = LPA.adjoint f2
 isoMapVertex "v" = v
 isoMapVertex "u" = u
 
-isoMapPath :: (Num a, Eq a) => WLPA.NormalFormAtom String String a -> LPA.NormalForm String String Int
+isoMapPath :: WLPA.NormalFormAtom String String Int -> LPA.NormalForm String String Int
+isoMapPath (WLPA.NormalFormAtom 1 vertex []) = LPA.convertTermToBasis iso_graph_lpa (isoMapVertex vertex)
 isoMapPath (WLPA.NormalFormAtom 1 vertex path) = LPA.convertTermToBasis iso_graph_lpa ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
+isoMapPath (WLPA.NormalFormAtom c vertex path) = map (\(LPA.NormalFormAtom k v es fs) -> LPA.NormalFormAtom (c*k) v es fs) (isoMapPath (WLPA.NormalFormAtom 1 vertex path))
 
-main = do
-   print x
-   print y
-   print xy
-   print "--------"
-   print fx
-   print fy
-   print fxy
-   print fxfy
-   print "--------"
+verify
+  :: WeightedGraph String String
+     -> Graph String String
+     -> WLPA.NormalFormAtom String String Int
+     -> WLPA.NormalFormAtom String String Int
+     -> Bool
+verify weightedGraph unweightedGraph x y = sort fxy == sort fxfy
+ where
+  xy = WLPA.convertToBasisForm weightedGraph ((WLPA.convertTerm x) * (WLPA.convertTerm y))
+  fx = isoMapPath x
+  fy = isoMapPath y
+  fxy = LPA.collectNormalFormAtoms $ concatMap isoMapPath xy
+  fxfy = LPA.convertTermToBasis unweightedGraph $ (sum $ map LPA.convertTerm $ isoMapPath x) * (sum $ map LPA.convertTerm $ isoMapPath y)
+
+findFails weightedGraph unweightedGraph = filter (not . fst) $ runOmega $ liftM2 (\(i,x) (j,y) -> (verify weightedGraph unweightedGraph x y,(i,j))) (each bs) (each bs)
+ where bs = zip [0..] (WLPA.basis weightedGraph)
+
+test weightedGraph unweightedGraph x y = do
+   putStrLn $ "x: " ++ show x
+   putStrLn $ "y: " ++ show y
+   putStrLn $ "xy: " ++ show xy
+   putStrLn $ "--------"
+   putStrLn $ "fx: " ++ show fx
+   putStrLn $ "fy: " ++ show fy
+   putStrLn $ "fxy: " ++ show fxy
+   putStrLn $ "fxfy: " ++ show fxfy
+   putStrLn $ "--------"
    print $ sort fxy == sort fxfy
    
  where
-  bs = WLPA.basis WLPA.iso_example
-  x = bs !! 200
-  y = bs !! 300
-  xy = WLPA.convertToBasisForm WLPA.iso_example ((WLPA.convertTerm x) * (WLPA.convertTerm y))
-  
+  xy = WLPA.convertToBasisForm weightedGraph ((WLPA.convertTerm x) * (WLPA.convertTerm y))
   fx = isoMapPath x
   fy = isoMapPath y
-  fxy = concatMap isoMapPath xy
-  fxfy = LPA.convertTermToBasis iso_graph_lpa $ (sum $ map LPA.convertTerm $ isoMapPath x) * (sum $ map LPA.convertTerm $ isoMapPath y)
+  fxy = LPA.collectNormalFormAtoms $ concatMap isoMapPath xy
+  fxfy = LPA.convertTermToBasis unweightedGraph $ (sum $ map LPA.convertTerm $ isoMapPath x) * (sum $ map LPA.convertTerm $ isoMapPath y)
+
+main = test WLPA.iso_example iso_graph_lpa x y
+   
+ where
+  bs = WLPA.basis WLPA.iso_example
+  x = bs !! 3
+  y = bs !! 2

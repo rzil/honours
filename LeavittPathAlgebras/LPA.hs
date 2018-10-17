@@ -65,7 +65,7 @@ printTerm Zero = "0"
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (Term e v k) where
    show = printTerm
 
-data NormalFormAtom edge vertex k = NormalFormAtom k vertex [edge] [edge]
+data NormalFormAtom edge vertex k = NormalFormAtom {normalFormAtomCoefficient :: k, normalFormAtomVertex :: vertex, normalFormAtomPath :: [edge], normalFormAtomGhostPath :: [edge]}
 
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (NormalFormAtom e v k) where
    show = printTerm . convertTerm
@@ -167,7 +167,9 @@ stripZeroes [] = []
 stripZeroes ((NormalFormAtom 0 _ _ _) : xs) = stripZeroes xs
 stripZeroes (x : xs) = x : (stripZeroes xs)
 
-convertTermToBasis graph = convertBasis graph . convertNormalForm graph
+collectNormalFormAtoms nf = filter ((/= 0) . normalFormAtomCoefficient) (map (\xs -> (head xs) {normalFormAtomCoefficient = sum (map normalFormAtomCoefficient xs)}) (groupBy (\a b -> normalFormAtomVertex a == normalFormAtomVertex b && normalFormAtomPath a == normalFormAtomPath b && normalFormAtomGhostPath a == normalFormAtomGhostPath b) (sort nf)))
+
+convertTermToBasis graph = collectNormalFormAtoms . convertBasis graph . convertNormalForm graph
 
 -- logical implies
 (==>) x y = (not x) || y

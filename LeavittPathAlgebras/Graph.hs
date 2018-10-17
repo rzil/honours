@@ -23,6 +23,9 @@ data Graph e v = Graph {vertices :: S.Set v, edges :: M.Map e (v, v)}   deriving
 type Weighting = Int
 data WeightedGraph e v = WeightedGraph {graph :: Graph e v, weightings :: M.Map e Weighting}   deriving Show
 
+convertGraphToWeighted :: Ord k => Graph k v -> WeightedGraph k v
+convertGraphToWeighted g = WeightedGraph g (M.fromList (zip (M.keys (edges g)) (repeat 1)))
+
 vertexWeight :: (Ord v, Ord k) => WeightedGraph k v -> v -> Weighting
 vertexWeight weightedGraph v = maximum (0 : [(weightings weightedGraph) M.! e | e <- M.keys (edges (graphAtSource (graph weightedGraph) v))])
 

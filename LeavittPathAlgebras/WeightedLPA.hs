@@ -3,11 +3,9 @@ module WeightedLPA where
 
 import Graph
 import Data.Maybe
-import Data.List (sort,groupBy,intercalate,maximumBy,nub,group,subsequences,elemIndex)
+import Data.List (sort,groupBy)
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Data.Maybe
-import FiniteFields
 import Data.Function (on)
 
 data AtomType edge vertex = AEdge edge Weighting | AGhostEdge edge Weighting | AVertex vertex   deriving Show
@@ -66,7 +64,7 @@ instance (Show e, Show v, Show k, Eq k, Num k) => Show (Term e v k) where
    show = printTerm
 
 data NormalFormEdge edge = NormalFormEdge {normalFormEdge :: edge, normalFormEdgeIsGhost :: Bool, normalFormEdgeWeighting :: Weighting}  deriving (Eq,Ord)
-data NormalFormAtom edge vertex k = NormalFormAtom k vertex [NormalFormEdge edge]
+data NormalFormAtom edge vertex k = NormalFormAtom {normalFormAtomCoefficient :: k, normalFormAtomVertex :: vertex, normalFormAtomPath :: [NormalFormEdge edge]}
 
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (NormalFormAtom e v k) where
    show = printTerm . convertTerm
@@ -159,9 +157,9 @@ nodify :: (Ord v, Ord edge, Num k) => WeightedGraph edge v -> NormalFormAtom edg
 nodify weightedGraph t@(NormalFormAtom c v es) | isNodPath weightedGraph t = convertTerm t
 
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e True 1 : NormalFormEdge f False 1 : es))
-   | e == f = ((atom (vertex u)) - x) * (nodify weightedGraph (NormalFormAtom c v es))
+   | e == f = ((atom (vertex v)) - x) * (nodify weightedGraph (NormalFormAtom c v es))
    | otherwise = (negate x) * (nodify weightedGraph (NormalFormAtom c v es))
- where u = snd ((edges (graph weightedGraph)) M.! f)
+ where (u,_) = ((edges (graph weightedGraph)) M.! f)
        x = sum [(atom (ghostEdge e n)) * (atom (edge f n)) | n <- [2 .. vertexWeight weightedGraph u]]
 
 nodify weightedGraph (NormalFormAtom c v (NormalFormEdge e False ew : NormalFormEdge f True fw : es))
@@ -177,10 +175,12 @@ nodify weightedGraph (NormalFormAtom c v (e:es))
    | otherwise = (convertEdge e) * (nodify weightedGraph (NormalFormAtom c u es))
  where u = (if normalFormEdgeIsGhost e then fst else snd) (edges (graph weightedGraph) M.! normalFormEdge e)
 
-convertToBasisForm :: (Ord vertex, Ord edge, Ord t, Num t) => WeightedGraph edge vertex -> Term edge vertex t -> [NormalFormAtom edge vertex t]
-convertToBasisForm weightedGraph term = until (all (isNodPath weightedGraph)) (f weightedGraph) (convertNormalForm weightedGraph term)
+collectNormalFormAtoms nf = filter ((/= 0) . normalFormAtomCoefficient) (map (\xs -> (head xs) {normalFormAtomCoefficient = sum (map normalFormAtomCoefficient xs)}) (groupBy (\a b -> normalFormAtomVertex a == normalFormAtomVertex b && normalFormAtomPath a == normalFormAtomPath b) (sort nf)))
 
-f weightedGraph = concatMap ((convertNormalForm weightedGraph) . (nodify weightedGraph))
+convertToBasisForm :: (Ord vertex, Ord edge, Ord t, Num t) => WeightedGraph edge vertex -> Term edge vertex t -> [NormalFormAtom edge vertex t]
+convertToBasisForm weightedGraph term = collectNormalFormAtoms $ until (all (isNodPath weightedGraph)) (nodifyStep weightedGraph) (convertNormalForm weightedGraph term)
+
+nodifyStep weightedGraph = concatMap ((convertNormalForm weightedGraph) . (nodify weightedGraph))
 
 -- are two terms equal with respect to the given weighted graph
 equal_wrt_graph wg x y = sort (convertToBasisForm wg x) == sort (convertToBasisForm wg y)
