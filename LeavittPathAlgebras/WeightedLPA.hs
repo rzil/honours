@@ -61,7 +61,7 @@ printTerm Zero = "0"
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (Term e v k) where
    show = printTerm
 
-data NormalFormEdge edge = NormalFormEdge {normalFormEdge :: edge, normalFormEdgeIsGhost :: Bool, normalFormEdgeWeighting :: Weighting}  deriving (Eq,Ord)
+data NormalFormEdge edge = NormalFormEdge {normalFormEdge :: edge, normalFormEdgeIsGhost :: Bool, normalFormEdgeWeighting :: Weighting}  deriving (Eq,Ord,Show)
 data NormalFormAtom edge vertex k = NormalFormAtom {normalFormAtomCoefficient :: k, normalFormAtomVertex :: vertex, normalFormAtomPath :: [NormalFormEdge edge]}
 
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (NormalFormAtom e v k) where
@@ -195,7 +195,10 @@ isProjection wg x = equal_wrt_graph wg x ((adjoint x) * x)
 -- the identity element is the sum of all vertices
 identity wg = foldl1 (+) (map (atom . vertex) (S.toList (vertices (graph wg))))
 
+pathToNormalForm :: (Num k, Ord t) => WeightedGraph t vertex -> [((t, Weighting), Bool)] -> NormalFormAtom t vertex k
+pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then v else u)) [NormalFormEdge e f k | ((e,k),f) <- p]
+
 -- lists all elements in the basis for the wLVP of the graph
 -- this may or may not be finite
 basis :: (Ord u, Ord edge, Num t) => WeightedGraph edge u -> [NormalFormAtom edge u t]
-basis weightedGraph = concat [filter (isNodPath weightedGraph) $ [NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then v else u)) [NormalFormEdge e f k | ((e,k),f) <- p] | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
+basis weightedGraph = concat [filter (isNodPath weightedGraph) $ [pathToNormalForm weightedGraph p | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
