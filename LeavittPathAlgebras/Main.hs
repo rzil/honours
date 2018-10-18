@@ -67,5 +67,5 @@ main = test weighted_example unweighted_equivalent_example x y
    
  where
   bs = WLPA.basis weighted_example
-  x = bs !! 30
-  y = bs !! 20
+  x = bs !! 50
+  y = bs !! 60

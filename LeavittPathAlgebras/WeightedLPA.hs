@@ -196,7 +196,7 @@ isProjection wg x = equal_wrt_graph wg x ((adjoint x) * x)
 identity wg = foldl1 (+) (map (atom . vertex) (S.toList (vertices (graph wg))))
 
 pathToNormalForm :: (Num k, Ord t) => WeightedGraph t vertex -> [((t, Weighting), Bool)] -> NormalFormAtom t vertex k
-pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then v else u)) [NormalFormEdge e f k | ((e,k),f) <- p]
+pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then u else v)) [NormalFormEdge e (not f) k | ((e,k),f) <- p]
 
 -- lists all elements in the basis for the wLVP of the graph
 -- this may or may not be finite
