@@ -135,10 +135,13 @@ isSpecialEdge weightedGraph edge =
    in head (filter (\e -> (weightings weightedGraph) M.! e == uWeight) (M.keys (edges (graphAtSource (graph weightedGraph) u)))) == edge
 
 isForbidden :: (Ord a, Ord b) => WeightedGraph a b -> NormalFormEdge a -> NormalFormEdge a -> Bool
+
 isForbidden weightedGraph (NormalFormEdge e True 1) (NormalFormEdge f False 1) | (fst (es M.! e) == fst (es M.! f)) = True
  where es = (edges (graph weightedGraph))
+
 isForbidden weightedGraph (NormalFormEdge e False ew) (NormalFormEdge f True fw)
    | isSpecialEdge weightedGraph e && e == f = True
+
 isForbidden _ _ _ = False
 
 isNodPath :: (Ord b, Ord a) => WeightedGraph a b -> NormalFormAtom a t1 t -> Bool

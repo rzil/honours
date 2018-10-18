@@ -1,4 +1,4 @@
-module Examples where
+module Example1 where
 
 import qualified WeightedLPA as WLPA
 import Graph

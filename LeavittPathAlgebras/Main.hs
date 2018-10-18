@@ -9,7 +9,7 @@ import Data.List (sort)
 import Control.Monad (liftM2)
 import Control.Monad.Omega (runOmega, each)
 
-import Examples
+import Example1
 
 isoMapEdge (WLPA.NormalFormEdge "e" False 1) = e1
 isoMapEdge (WLPA.NormalFormEdge "e" True 1) = WLPA.adjoint e1
@@ -25,6 +25,7 @@ isoMapPath (WLPA.NormalFormAtom 1 vertex []) = WLPA.convertToBasisForm (convertG
 isoMapPath (WLPA.NormalFormAtom 1 vertex path) = WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example) ((isoMapVertex vertex) * (foldl1 (*) (map isoMapEdge path)))
 isoMapPath (WLPA.NormalFormAtom c vertex path) = map (\(WLPA.NormalFormAtom k v es) -> WLPA.NormalFormAtom (c*k) v es) (isoMapPath (WLPA.NormalFormAtom 1 vertex path))
 
+-- verify that two normal forms are equivalent
 verify
   :: WeightedGraph String String
      -> Graph String String
@@ -39,6 +40,7 @@ verify weightedGraph unweightedGraph x y = sort fxy == sort fxfy
   fxy = WLPA.collectNormalFormAtoms $ concatMap isoMapPath xy
   fxfy = WLPA.convertToBasisForm (convertGraphToWeighted unweightedGraph) $ (sum $ map WLPA.convertTerm $ isoMapPath x) * (sum $ map WLPA.convertTerm $ isoMapPath y)
 
+-- find cases where the isomorphism fails
 findFails weightedGraph unweightedGraph = filter (not . fst) $ runOmega $ liftM2 (\(i,x) (j,y) -> (verify weightedGraph unweightedGraph x y,(i,j))) (each bs) (each bs)
  where bs = zip [0..] (WLPA.basis weightedGraph)
 
