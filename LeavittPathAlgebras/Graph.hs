@@ -118,6 +118,10 @@ sinks g = S.filter (isSink g) (vertices g)
 sources :: Ord v => Graph e v -> S.Set v
 sources g = S.filter (isSource g) (vertices g)
 
+graphRestricted :: Ord v => Graph e v -> S.Set v -> Graph e v
+graphRestricted graph vertices = Graph {vertices = vertices, edges = newEdges}
+ where newEdges = M.filter (\(u,v) -> S.member u vertices && S.member v vertices) (edges graph)
+
 -- finds all paths in a graph of length n starting at a vertex
 pathsFrom :: (Ord u, Ord t) => Graph t u -> Int -> u -> S.Set [t]
 pathsFrom _     0 vertex = S.singleton []
@@ -300,10 +304,10 @@ randomHamiltonianGraph :: Int -> Int -> Float -> Graph String Int
 randomHamiltonianGraph seed n p = graphUnion (cycleGraph n) (randomGraph seed n p)
 
 -- creates a GraphViz .dot file string for the graph
-dotString :: (Show a, Ord a) => Graph e a -> String
-dotString graph = "digraph {\n" ++ unlines ([" " ++ (show.show) u ++ " -> " ++ (show.show) v | (u,vs) <- M.assocs (vertexForm graph), v <- vs] ++ [" " ++ (show.show) u | (u,[]) <- M.assocs (vertexForm graph)]) ++ "}\n"
+dotString :: (Show a, Show e, Ord a, Ord e) => Graph e a -> String
+dotString graph = "digraph {\n" ++ unlines ([let (u,v) = ((edges graph) M.! e) in " " ++ (show.show) u ++ " -> " ++ (show.show) v ++ " [ label=" ++ (show.(" " ++).(++ " ").show) e ++ " ]" | e <- M.keys (edges graph)] ++ [" " ++ (show.show) u | (u,[]) <- M.assocs (vertexForm graph)]) ++ "}\n"
 
-visualiseGraph :: (Show a, Ord a) => Graph e a -> IO ()
+visualiseGraph :: (Show a, Show e, Ord a, Ord e) => Graph e a -> IO ()
 visualiseGraph graph = writeFile "test.dot" (dotString graph) >> callCommand "dot test.dot -Tpng > test.png; open test.png"
 
 weightedDotString :: (Show a, Show e, Ord e, Ord a) => WeightedGraph e a -> String

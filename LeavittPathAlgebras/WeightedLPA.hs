@@ -12,6 +12,20 @@ data AtomType edge vertex = AEdge edge Weighting | AGhostEdge edge Weighting | A
 data OpType = Add | Product
 data Term edge vertex k = Op OpType (Term edge vertex k) (Term edge vertex k) | Atom k (AtomType edge vertex) | Zero
 
+data NormalFormEdge edge = NormalFormEdge {normalFormEdge :: edge, normalFormEdgeIsGhost :: Bool, normalFormEdgeWeighting :: Weighting}  deriving (Eq,Ord,Show)
+data NormalFormAtom edge vertex k = NormalFormAtom {normalFormAtomCoefficient :: k, normalFormAtomVertex :: vertex, normalFormAtomPath :: [NormalFormEdge edge]}
+
+instance (Show e, Show v, Show k, Eq k, Num k) => Show (NormalFormAtom e v k) where
+   show = printTerm . convertTerm
+
+instance (Eq e, Eq v, Eq k) => Eq (NormalFormAtom e v k) where
+   NormalFormAtom a b c == NormalFormAtom w x y = (b,c,a) == (x,y,w)
+
+instance (Ord e, Ord v, Ord k) => Ord (NormalFormAtom e v k) where
+   NormalFormAtom a b c `compare` NormalFormAtom w x y = (b,c,a) `compare` (x,y,w)
+
+type NormalForm edge vertex k = [NormalFormAtom edge vertex k]
+
 instance (Num k) => Num (Term e v k) where
   x + y = Op Add x y
   x * y = Op Product x y
@@ -61,20 +75,6 @@ printTerm Zero = "0"
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (Term e v k) where
    show = printTerm
 
-data NormalFormEdge edge = NormalFormEdge {normalFormEdge :: edge, normalFormEdgeIsGhost :: Bool, normalFormEdgeWeighting :: Weighting}  deriving (Eq,Ord,Show)
-data NormalFormAtom edge vertex k = NormalFormAtom {normalFormAtomCoefficient :: k, normalFormAtomVertex :: vertex, normalFormAtomPath :: [NormalFormEdge edge]}
-
-instance (Show e, Show v, Show k, Eq k, Num k) => Show (NormalFormAtom e v k) where
-   show = printTerm . convertTerm
-
-instance (Eq e, Eq v, Eq k) => Eq (NormalFormAtom e v k) where
-   NormalFormAtom a b c == NormalFormAtom w x y = (b,c,a) == (x,y,w)
-
-instance (Ord e, Ord v, Ord k) => Ord (NormalFormAtom e v k) where
-   NormalFormAtom a b c `compare` NormalFormAtom w x y = (b,c,a) `compare` (x,y,w)
-
-type NormalForm edge vertex k = [NormalFormAtom edge vertex k]
-
 adjoint :: Term e v k -> Term e v k
 adjoint (Op Add u v) = Op Add (adjoint u) (adjoint v)
 adjoint (Op Product u v) = Op Product (adjoint v) (adjoint u)
@@ -96,14 +96,11 @@ normalFormAtomProduct weightedGraph (NormalFormAtom c v es) (NormalFormAtom d u 
    | (if (normalFormEdgeIsGhost (last es)) then fst else snd) ((edges (graph weightedGraph)) M.! (normalFormEdge (last es))) == u = Just (NormalFormAtom (c*d) v (es ++ fs))
    | otherwise = Nothing
 
-coefficient :: NormalFormAtom e v t -> t
-coefficient (NormalFormAtom c _ _) = c
-
 convertNormalForm :: (Num k, Ord edge, Ord vertex, Ord k) => WeightedGraph edge vertex -> Term edge vertex k -> [NormalFormAtom edge vertex k]
 convertNormalForm weightedGraph term = map combine (groupBy (on (==) dropCoefficient) (sort (convertNormalForm' term)))
  where
   dropCoefficient (NormalFormAtom _ v es) = (v,es)
-  combine (NormalFormAtom c v es : ts) = NormalFormAtom (c + sum (map coefficient ts)) v es
+  combine (NormalFormAtom c v es : ts) = NormalFormAtom (c + sum (map normalFormAtomCoefficient ts)) v es
   
   convertNormalForm' (Op Add u v) = (convertNormalForm' u) ++ (convertNormalForm' v)
   convertNormalForm' (Op Product u v) = catMaybes [normalFormAtomProduct weightedGraph x y | x <- convertNormalForm' u, y <- convertNormalForm' v]
@@ -202,3 +199,44 @@ pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (
 -- this may or may not be finite
 basis :: (Ord u, Ord edge, Num t) => WeightedGraph edge u -> [NormalFormAtom edge u t]
 basis weightedGraph = concat [filter (isNodPath weightedGraph) $ [pathToNormalForm weightedGraph p | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
+
+d_v :: (Ord vertex, Ord edge) => WeightedGraph edge vertex -> Int -> Int
+d_v wg n = length $ takeWhile ((n >=) . length . normalFormAtomPath) $ basis wg
+
+-- the Gelfand-Kirillov dimension (GK dimension) is the lim sup of this function as n -> infinity
+gelfandKirillov :: (Floating a, Ord edge, Ord vertex) => WeightedGraph edge vertex -> Int -> a
+gelfandKirillov wg n = logBase (fromIntegral n) $ fromIntegral $ d_v wg n
+
+isNod2Path :: (Ord t1, Ord edge, Num t) => WeightedGraph edge t1 -> NormalFormAtom edge t1 t -> Bool
+isNod2Path wg p = isNodPath wg p && maybe False (isNodPath wg) (normalFormAtomProduct wg p p)
+
+subpathsOfLength 0 _ = [[]]
+subpathsOfLength k xs
+   | length xs >= k = take k xs : (subpathsOfLength k (tail xs))
+   | otherwise = []
+
+edgesPathToAtom wg (p:ps) = NormalFormAtom 1 ((if normalFormEdgeIsGhost p then snd else fst) ((edges (graph wg)) M.! (normalFormEdge p))) (p:ps)
+
+atomSubpathsOfLength wg k atom = [edgesPathToAtom wg p | p <- subpathsOfLength k (normalFormAtomPath atom)]
+
+isQuasiCycle :: (Ord vertex, Ord edge, Num k) => WeightedGraph edge vertex -> NormalFormAtom edge vertex k -> Bool
+isQuasiCycle wg p | isNod2Path wg p = not (any (isNod2Path wg) $ concat [atomSubpathsOfLength wg k p2 | k <- [1..length (normalFormAtomPath p) - 1]])
+ where Just p2 = normalFormAtomProduct wg p p
+isQuasiCycle _ _ = False
+
+isSubPath _ [] = False
+isSubPath xs ys
+   | xs == take (length xs) ys = True
+   | otherwise = isSubPath xs (tail ys)
+
+normalFormAtomDivides p q = isSubPath (normalFormAtomPath p) (normalFormAtomPath q)
+
+isNodArrow wg p o q | isNodPath wg p && isNodPath wg o && isNodPath wg q && not (normalFormAtomDivides p o) = maybe False id $ do
+   po <- normalFormAtomProduct wg p o
+   poq <- normalFormAtomProduct wg po q
+   return (isNodPath wg poq)
+isNodArrow _ _ _ _ = False
+
+-- what is an upper bound for the length of a quasicycle?
+quasicycles wg = filter (isQuasiCycle wg) (takeWhile ((1+n >=) . length . normalFormAtomPath) (basis wg))
+ where n = S.size (vertices (graph wg))

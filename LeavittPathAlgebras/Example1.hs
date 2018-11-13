@@ -1,5 +1,7 @@
 module Example1 where
 
+-- Example 18 from arXiv 1807.11675
+
 import qualified WeightedLPA as WLPA
 import Graph
 import qualified Data.Map as M
@@ -20,6 +22,8 @@ v = vertex "v"
 e1 = (edge "e1") + (edge "e2") + (edge "e3")
 f1 = edge "f"
 f2 = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
+
+convertToBasisForm = WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example)
 
 twos = map (WLPA.pathToNormalForm weighted_example) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weighted_example)) 2
 
