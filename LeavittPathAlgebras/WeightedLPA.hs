@@ -3,7 +3,7 @@ module WeightedLPA where
 
 import Graph
 import Data.Maybe
-import Data.List (sort,groupBy)
+import Data.List (sort,groupBy,subsequences)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Function (on)
@@ -240,3 +240,16 @@ isNodArrow _ _ _ _ = False
 -- what is an upper bound for the length of a quasicycle?
 quasicycles wg = filter (isQuasiCycle wg) (takeWhile ((1+n >=) . length . normalFormAtomPath) (basis wg))
  where n = S.size (vertices (graph wg))
+
+-- lists all elements having coefficients from a given list
+-- NB: do not include 0 in the list of coefficients
+elements graph coefficients = [foldl1 (+) (zipWith (*:) cs xs) | xs <- subsequences (map convertTerm $ basis graph), not (null xs), cs <- listsLengthNFrom (length xs) coefficients]
+
+-- lists all idempotents having coefficients from a given list
+idempotents graph coefficients = Zero : Prelude.filter (isIdempotent graph) (elements graph coefficients)
+
+-- lists all projections having coefficients from a given list
+projections graph coefficients = Zero : Prelude.filter (isProjection graph) (elements graph coefficients)
+
+-- elements having coefficients from a given list in the right annihilator of the given element
+annihilatorRight g coefficients x = Prelude.filter ((equal_wrt_graph g Zero) . (x *)) (elements g coefficients)

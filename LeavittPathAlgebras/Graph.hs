@@ -131,6 +131,14 @@ pathsFrom graph n vertex = S.unions [S.map (e :) (pathsFrom graph (n-1) (snd ((e
 paths :: (Ord v, Ord e) => Graph e v -> Int -> S.Set [e]
 paths graph n = S.unions (map (pathsFrom graph n) (S.toList $ vertices graph))
 
+-- | Construct the graph whose Leavitt Path Algebra is isomorphic to the Cohn algebra of the original
+-- | Cohn algebras always have the IBN property
+cohnGraph :: (Ord e, Ord a) => Graph e a -> Graph (e, Bool) (a, Bool)
+cohnGraph g = Graph v' e'
+ where
+  v' = (S.map (flip (,) False) (vertices g)) `S.union` (S.map (flip (,) True) (vertices g))
+  e' = (M.fromList [((e,False),((x,False),(y,False))) | (e,(x,y)) <- M.toList (edges g)]) `M.union` (M.fromList [((e,True),((x,False),(y,True))) | (e,(x,y)) <- M.toList (edges g)])
+
 -- | determines if the given graph is acyclic (contains no cycles)
 -- | a directed graph is acyclic iff the adjacency matrix is nilpotent
 isAcyclic :: Eq t => Graph k t -> Bool

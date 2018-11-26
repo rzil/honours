@@ -6,10 +6,10 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 weighted_example :: WeightedGraph String String
-weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")), ("f",("w","v"))]) (M.fromList [("e",2),("f",1)])
+weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")), ("f",("w","v")), ("g",("x","u"))]) (M.fromList [("e",2),("f",1),("g",1)])
 
 unweighted_equivalent_example :: Graph String String
-unweighted_equivalent_example = (buildGraphFromEdges [("e1",("u","v")), ("e2",("u","v")), ("f1",("w","v"))])
+unweighted_equivalent_example = (buildGraphFromEdges [("e1",("u","v")), ("e2",("u","v")), ("f1",("w","v")), ("g1",("x","u"))])
 
 vertex = WLPA.atom . WLPA.vertex
 edge = WLPA.atom . (flip WLPA.edge 1)
@@ -20,6 +20,9 @@ v = vertex "u"
 e1 = WLPA.adjoint $ edge "e1"
 e2 = WLPA.adjoint $ edge "e2"
 f1 = edge "f1"
+g1 = edge "g1"
+
+convertToBasisForm = WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example)
 
 twos = map (WLPA.pathToNormalForm weighted_example) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weighted_example)) 2
 
