@@ -35,32 +35,13 @@ e1 --> e1
 f1 --> f1
 f2 --> f2
 
-identity maps to 2*identity. So nullary operations not preserved.
+identity maps to 2*identity. So identity is not preserved.
 u + v  -->  v + v = 2v
 
-u --> 1/2 v
-v --> 1/2 v
-e1 --> sqrt(1/2) e1
-f1 --> sqrt(1/2) f1
-f2 --> sqrt(1/2) f2
+However, existence of identity is not required by definition of LPA, so this is ok.
 
-Now u + v --> 1/2 v + 1/2 v = v
-Other relations still hold.
-works!
-
-Doesn't work for Z2 (or any field of characteristic 2) because 1/2 doesn't exist.
-
-Try Z7
-
-u --> 4v
-v --> 4v
-So u + v  -->  8v = v
-e1 --> 2 e1
-f1 --> 2 f1
-f2 --> 2 f2
-
-what is the kernel?
-u - v --> 1/2 v - 1/2 v = 0
+What is the kernel?
+u - v --> v - v = 0
 v - u --> 0
 S = {a u + b v | a + b = 0} --> a v + b v = (a + b) v = 0
 S A --> 0
