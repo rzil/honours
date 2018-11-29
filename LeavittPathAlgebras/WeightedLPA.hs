@@ -198,7 +198,8 @@ pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (
 -- lists all elements in the basis for the wLVP of the graph
 -- this may or may not be finite
 basis :: (Ord u, Ord edge, Num t) => WeightedGraph edge u -> [NormalFormAtom edge u t]
-basis weightedGraph = concat [filter (isNodPath weightedGraph) $ [pathToNormalForm weightedGraph p | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
+basis weightedGraph = vs ++ concat [filter (isNodPath weightedGraph) $ [pathToNormalForm weightedGraph p | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
+ where vs = map (flip (NormalFormAtom 1) []) (S.toList $ vertices (graph weightedGraph))
 
 d_v :: (Ord vertex, Ord edge) => WeightedGraph edge vertex -> Int -> Int
 d_v wg n = length $ takeWhile ((n >=) . length . normalFormAtomPath) $ basis wg
@@ -253,3 +254,9 @@ projections graph coefficients = Zero : Prelude.filter (isProjection graph) (ele
 
 -- elements having coefficients from a given list in the right annihilator of the given element
 annihilatorRight g coefficients x = Prelude.filter ((equal_wrt_graph g Zero) . (x *)) (elements g coefficients)
+
+showMapping graph = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map show non_nods) (map show non_nods_reduced))
+ where
+  twos = map (pathToNormalForm graph) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph graph)) 2
+  non_nods = filter (not . isNodPath graph) twos
+  non_nods_reduced = map (convertToBasisForm graph . convertTerm) non_nods

@@ -4,6 +4,7 @@ import qualified WeightedLPA as WLPA
 import Graph
 import qualified Data.Map as M
 import qualified Data.Set as S
+import FiniteFields
 
 weighted_example :: WeightedGraph String String
 weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u"))]) (M.fromList [("e",2)])
