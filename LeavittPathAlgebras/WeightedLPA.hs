@@ -260,3 +260,25 @@ showMapping graph = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map
   twos = map (pathToNormalForm graph) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph graph)) 2
   non_nods = filter (not . isNodPath graph) twos
   non_nods_reduced = map (convertToBasisForm graph . convertTerm) non_nods
+
+-- checks if a mapping from a wLPA to an LPA is well defined
+wLPA_relations_map
+  :: (Eq a, Ord edge1, Num k) =>
+     (AtomType edge1 a -> Term edge vertex k)
+     -> WeightedGraph edge1 a -> [Term edge vertex k]
+wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ four
+ where
+    vs = S.toList $ vertices (graph wgraph)
+    es = M.keys $ edges (graph wgraph)
+    s e = fst $ (edges (graph wgraph)) M.! e
+    r e = snd $ (edges (graph wgraph)) M.! e
+    w e = (weightings wgraph) M.! e
+    edgesAt v = filter ((v ==) . s) es
+    maxEdgeWeightAt v = maximum (0 : map w (edgesAt v))
+    one = [(f$vertex v) * (f$vertex w) - (if v == w then f$vertex v else Zero) | v <- vs, w <- vs]
+    two1 = [(f$vertex$s e) * (f$edge e i) - (f$edge e i) | e <- es, i <- [1 .. (weightings wgraph) M.! e]]
+    two2 = [(f$edge e i) * (f$vertex$r e) - (f$edge e i) | e <- es, i <- [1 .. (weightings wgraph) M.! e]]
+    two3 = [(f$vertex$r e) * (f$ghostEdge e i) - (f$ghostEdge e i) | e <- es, i <- [1 .. w e]]
+    two4 = [(f$ghostEdge e i) * (f$vertex$s e) - (f$ghostEdge e i) | e <- es, i <- [1 .. w e]]
+    three = [sum [(f$edge e i) * (f$ghostEdge e j) | e <- edgesAt v] - (if i == j then f$vertex v else Zero) | v <- vs, i <- [1 .. maxEdgeWeightAt v], j <- [1 .. maxEdgeWeightAt v]]
+    four = [let m = max (w e) (w e') in sum [(f$ghostEdge e i) * (f$edge e' i) | i <- [1 .. m]] - (if e == e' then f$vertex$r e else Zero) | e <- es, e' <- es]

@@ -26,7 +26,7 @@ e1 --> f2*
 f1 --> f1*
 f2 --> e1*
 
-homomorphism to Example9
+almost homomorphism to Example9
 weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
 
 u --> v
@@ -37,8 +37,6 @@ f2 --> f2
 
 identity maps to 2*identity. So identity is not preserved.
 u + v  -->  v + v = 2v
-
-However, existence of identity is not required by definition of LPA, so this is ok.
 
 What is the kernel?
 u - v --> v - v = 0
@@ -56,6 +54,18 @@ unweighted_equivalent_example = Graph (S.fromList ["u1","u2","u3","v"]) (M.fromL
 
 solvedGraph = graphGroupSolve unweighted_equivalent_example
 
+-- the mapping
+f (WLPA.AEdge "e" 1) = (edge "e1") + (edge "e2") + (edge "e3")
+f (WLPA.AEdge "f" 1) = edge "f"
+f (WLPA.AEdge "f" 2) = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
+f (WLPA.AVertex "u") = (vertex "u1") + (vertex "u2") + (vertex "u3")
+f (WLPA.AVertex "v") = vertex "v"
+f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+f _ = WLPA.Zero
+
+-- this tests all relations under the mapping
+test = and $ map (WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_equivalent_example) WLPA.Zero) (WLPA.wLPA_relations_map f weighted_example)
+
 atom = WLPA.Atom 1
 vertex = atom . WLPA.vertex
 edge = atom . (flip WLPA.edge 1)
@@ -71,25 +81,16 @@ ghostEdge2 = atom . (flip WLPA.ghostEdge 2)
     f2 = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
 -}
 
+v__ = (vertex "u1") + (vertex "u2") + (vertex "u3") + (vertex "v")
+e1__ = (edge "e1") + (edge "e2") + (edge "e3")
+f1__ = edge "f"
+f2__ = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
+
 u = vertex "u"
 v = vertex "v"
 e1 = edge "e"
 f1 = edge "f"
 f2 = edge2 "f"
-
-v__ = vertex "v"
-u1__ = ghostEdge2 "f" * edge "f" * ghostEdge "f" * edge2 "f"
-u2__ = ghostEdge "f" * edge2 "f" * ghostEdge2 "f" * edge "f"
-u3__ = (vertex "u") - u1_ - u2_
-e1__ = edge "e" - e2_ - (edge2 "f") * j_
-e2__ = (edge "e") * u2_
-e3__ = edge2 "f" * j_
-f__ = edge "f"
-g__ = ghostEdge "f" * edge2 "f"
-h__ = ghostEdge2 "f" * e2_
-i__ = ghostEdge2 "f" * ((edge "e") - e2_ - (edge2 "f") * j_)
-j__ = WLPA.adjoint (u3_ * a)
- where a = (WLPA.adjoint ((edge "e") - e2_)) * (edge2 "f")
 
 s = WLPA.adjoint
 
@@ -123,5 +124,21 @@ i_ = e1 * ((s f2) - e2_ - (s e1) * j_)
 j_ = s (u3_ * a)
  where a = (s ((s f2) - e2_)) * (s e1)
 -}
+
+{-
+u --> u + v
+v --> u + v
+e1 --> e1 + f2*
+f1 --> f1 + f1*
+f2 --> f2 + e1*
+-}
+
+-- almost an endomophism
+-- kernel: u - v, e1 - f2*, f1 - f1*
+uu = u + v
+vv = u + v
+e1e1 = e1 + (s f2)
+f1f1 = f1 + (s f1)
+f2f2 = f2 + (s e1)
 
 convertToBasisForm = WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example)
