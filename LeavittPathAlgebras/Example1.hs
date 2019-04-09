@@ -64,7 +64,7 @@ f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
 f _ = WLPA.Zero
 
 -- this tests all relations under the mapping
-test = and $ map (WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_equivalent_example) WLPA.Zero) (WLPA.wLPA_relations_map f weighted_example)
+test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example unweighted_equivalent_example
 
 atom = WLPA.Atom 1
 vertex = atom . WLPA.vertex

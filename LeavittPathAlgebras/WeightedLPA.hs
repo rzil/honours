@@ -261,6 +261,10 @@ showMapping graph = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map
   non_nods = filter (not . isNodPath graph) twos
   non_nods_reduced = map (convertToBasisForm graph . convertTerm) non_nods
 
+-- sum without zero
+sum' [x] = x
+sum' (x:xs) = x + sum' xs
+
 -- checks if a mapping from a wLPA to an LPA is well defined
 wLPA_relations_map
   :: (Eq a, Ord edge1, Num k) =>
@@ -280,5 +284,11 @@ wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ fo
     two2 = [(f$edge e i) * (f$vertex$r e) - (f$edge e i) | e <- es, i <- [1 .. (weightings wgraph) M.! e]]
     two3 = [(f$vertex$r e) * (f$ghostEdge e i) - (f$ghostEdge e i) | e <- es, i <- [1 .. w e]]
     two4 = [(f$ghostEdge e i) * (f$vertex$s e) - (f$ghostEdge e i) | e <- es, i <- [1 .. w e]]
-    three = [sum [(f$edge e i) * (f$ghostEdge e j) | e <- edgesAt v] - (if i == j then f$vertex v else Zero) | v <- vs, i <- [1 .. maxEdgeWeightAt v], j <- [1 .. maxEdgeWeightAt v]]
-    four = [let m = max (w e) (w e') in sum [(f$ghostEdge e i) * (f$edge e' i) | i <- [1 .. m]] - (if e == e' then f$vertex$r e else Zero) | e <- es, e' <- es]
+    three = [sum' [(f$edge e i) * (f$ghostEdge e j) | e <- edgesAt v] - (if i == j then f$vertex v else Zero) | v <- vs, i <- [1 .. maxEdgeWeightAt v], j <- [1 .. maxEdgeWeightAt v]]
+    four = [let m = max (w e) (w e') in sum' [(f$ghostEdge e i) * (f$edge e' i) | i <- [1 .. m]] - (if e == e' then f$vertex$r e else Zero) | e <- es, e' <- es]
+
+wLPA_relations_show wg = wLPA_relations_map (Atom 1) wg
+
+wLPA_relations_check f wgraph graph = map (equal_wrt_graph (convertGraphToWeighted graph) Zero) (wLPA_relations_map f wgraph)
+
+wLPA_relations f wgraph graph = zip (wLPA_relations_check f wgraph graph) (wLPA_relations_show wgraph)
