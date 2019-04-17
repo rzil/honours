@@ -54,17 +54,28 @@ unweighted_equivalent_example = Graph (S.fromList ["u1","u2","u3","v"]) (M.fromL
 
 solvedGraph = graphGroupSolve unweighted_equivalent_example
 
--- the mapping
-f (WLPA.AEdge "e" 1) = (edge "e1") + (edge "e2") + (edge "e3")
-f (WLPA.AEdge "f" 1) = edge "f"
-f (WLPA.AEdge "f" 2) = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
-f (WLPA.AVertex "u") = (vertex "u1") + (vertex "u2") + (vertex "u3")
-f (WLPA.AVertex "v") = vertex "v"
-f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
-f _ = WLPA.Zero
+-- this tests all relations under the mapping
+test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example (convertGraphToWeighted unweighted_equivalent_example)
+ where
+  f (WLPA.AEdge "e" 1) = (edge "e1") + (edge "e2") + (edge "e3")
+  f (WLPA.AEdge "f" 1) = edge "f"
+  f (WLPA.AEdge "f" 2) = (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
+  f (WLPA.AVertex "u") = (vertex "u1") + (vertex "u2") + (vertex "u3")
+  f (WLPA.AVertex "v") = vertex "v"
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
 
 -- this tests all relations under the mapping
-test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example unweighted_equivalent_example
+testAutomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example weighted_example
+ where
+  f (WLPA.AEdge "e" 1) = ghostEdge2 "f"
+  f (WLPA.AEdge "f" 1) = ghostEdge "f"
+  f (WLPA.AEdge "f" 2) = ghostEdge "e"
+  f (WLPA.AVertex "u") = vertex "v"
+  f (WLPA.AVertex "v") = vertex "u"
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
+
 
 atom = WLPA.Atom 1
 vertex = atom . WLPA.vertex

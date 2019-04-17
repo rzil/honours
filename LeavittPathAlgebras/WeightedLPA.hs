@@ -195,7 +195,7 @@ identity wg = foldl1 (+) (map (atom . vertex) (S.toList (vertices (graph wg))))
 pathToNormalForm :: (Num k, Ord t) => WeightedGraph t vertex -> [((t, Weighting), Bool)] -> NormalFormAtom t vertex k
 pathToNormalForm weightedGraph p = NormalFormAtom 1 (let ((e,_),f) = head p in (let (u,v) = edges (graph weightedGraph) M.! e in if f then u else v)) [NormalFormEdge e (not f) k | ((e,k),f) <- p]
 
--- lists all elements in the basis for the wLVP of the graph
+-- lists all elements in the basis for the wLPA of the graph
 -- this may or may not be finite
 basis :: (Ord u, Ord edge, Num t) => WeightedGraph edge u -> [NormalFormAtom edge u t]
 basis weightedGraph = vs ++ concat [filter (isNodPath weightedGraph) $ [pathToNormalForm weightedGraph p | p <- S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weightedGraph)) len] | len <- [1..]]
@@ -289,6 +289,6 @@ wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ fo
 
 wLPA_relations_show wg = wLPA_relations_map (Atom 1) wg
 
-wLPA_relations_check f wgraph graph = map (equal_wrt_graph (convertGraphToWeighted graph) Zero) (wLPA_relations_map f wgraph)
+wLPA_relations_check f wgraph rgraph = map (equal_wrt_graph rgraph Zero) (wLPA_relations_map f wgraph)
 
-wLPA_relations f wgraph graph = zip (wLPA_relations_check f wgraph graph) (wLPA_relations_show wgraph)
+wLPA_relations f wgraph rgraph = zip (wLPA_relations_check f wgraph rgraph) (wLPA_relations_show wgraph)
