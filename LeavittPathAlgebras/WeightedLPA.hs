@@ -291,4 +291,8 @@ wLPA_relations_show wg = wLPA_relations_map (Atom 1) wg
 
 wLPA_relations_check f wgraph rgraph = map (equal_wrt_graph rgraph Zero) (wLPA_relations_map f wgraph)
 
-wLPA_relations f wgraph rgraph = zip (wLPA_relations_check f wgraph rgraph) (wLPA_relations_show wgraph)
+wLPA_relations_present f wgraph rgraph = do
+  let check = wLPA_relations_check f wgraph rgraph
+  let relations = wLPA_relations_show wgraph
+  putStr $ unlines $ map show $ zip check relations
+  print (and check)
