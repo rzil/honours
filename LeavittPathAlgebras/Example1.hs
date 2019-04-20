@@ -9,6 +9,9 @@ import qualified Data.Set as S
 import FiniteFields
 import GraphMonoid
 
+import Control.Monad (liftM2, liftM3)
+import Control.Monad.Omega
+
 {-
 u.("e",1)*.("e",1) --> [u]
 u.("e",1)*.("f",1) --> []
@@ -77,11 +80,48 @@ testAutomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighte
   f _ = WLPA.Zero
 
 
+-- this tests all relations under the mapping
+testId = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example weighted_example
+ where
+  f (WLPA.AEdge "e" 1) = edge "e"
+  f (WLPA.AEdge "f" 1) = edge "f"
+  f (WLPA.AEdge "f" 2) = edge2 "f"
+  f (WLPA.AVertex "u") = WLPA.Zero
+  f (WLPA.AVertex "v") = vertex "v"
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
+
+
+-- search for endomorphisms
+test2 = [(e,f1,f2) | (e,f1,f2) <- allTriples es es es, and (WLPA.wLPA_relations_check (f e f1 f2) weighted_example weighted_example)]
+ where
+  es = WLPA.elements weighted_example (tail z2)
+  f e _  _  (WLPA.AEdge "e" 1) = e
+  f _ f1 _  (WLPA.AEdge "f" 1) = f1
+  f _ _  f2 (WLPA.AEdge "f" 2) = f2
+  f _ _  _  (WLPA.AVertex "u") = vertex "u"
+  f _ _  _  (WLPA.AVertex "v") = vertex "v"
+  f e f1 f2 (WLPA.AGhostEdge ed w) = WLPA.adjoint (f e f1 f2 (WLPA.AEdge ed w))
+  f _ _  _  _ = WLPA.Zero
+
+allTriples xs ys zs = runOmega $ liftM3 (\a b c -> (a,b,c)) (each xs) (each ys) (each zs)
+
+atom :: (Num k) => WLPA.AtomType edge vertex -> WLPA.Term edge vertex k
 atom = WLPA.Atom 1
+
+vertex :: (Num k) => vertex -> WLPA.Term edge vertex k
 vertex = atom . WLPA.vertex
+
+edge :: (Num k) => edge -> WLPA.Term edge vertex k
 edge = atom . (flip WLPA.edge 1)
+
+ghostEdge :: (Num k) => edge -> WLPA.Term edge vertex k
 ghostEdge = atom . (flip WLPA.ghostEdge 1)
+
+edge2 :: (Num k) => edge -> WLPA.Term edge vertex k
 edge2 = atom . (flip WLPA.edge 2)
+
+ghostEdge2 :: (Num k) => edge -> WLPA.Term edge vertex k
 ghostEdge2 = atom . (flip WLPA.ghostEdge 2)
 
 {-
