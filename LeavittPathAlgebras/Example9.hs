@@ -75,11 +75,11 @@ u3 = (s y) * y - (s x) * x - x * (s x)
 g = x
 h = y - y*z
 j = y^2 * (s y)
-i = y*z - j
+i = y*(z - y * (s y))
 
 -- these are the generators x,y,z expressed in terms of the edges of the LPA
 -- this shows the map is invertible, thus injective
-v_ = s y * y
 x_ = g
-y_ = (s h + s i + s j) * (h + i + j)
+y_ = h + i + j
 z_ = (s h + s i + s j) * (i + j)
+v_ = s y_ * y_
