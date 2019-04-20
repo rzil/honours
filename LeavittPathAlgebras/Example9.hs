@@ -61,16 +61,32 @@ unweighted_example = buildGraphFromEdges [ ("g",("u2","u1")), ("h",("u3","u2")),
 
 testMonomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f (convertGraphToWeighted unweighted_example) weighted_example
  where
-  -- the automorphism mapping
-  f (WLPA.AEdge "u1" 1) = u1
-  f (WLPA.AEdge "u2" 1) = u2
-  f (WLPA.AEdge "u3" 1) = u3
-  f (WLPA.AEdge "g" 2) = g
-  f (WLPA.AEdge "h" 2) = h
-  f (WLPA.AEdge "i" 2) = i
-  f (WLPA.AEdge "j" 2) = j
+  f (WLPA.AVertex "u1") = u1
+  f (WLPA.AVertex "u2") = u2
+  f (WLPA.AVertex "u3") = u3
+  f (WLPA.AEdge "g" 1) = g
+  f (WLPA.AEdge "h" 1) = h
+  f (WLPA.AEdge "i" 1) = i
+  f (WLPA.AEdge "j" 1) = j
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero 
+
+{-}
+unweighted_bigger_example = Graph (S.fromList ["u1","u2","u3","v"]) (M.fromList [("j",("u3","u3")),("i",("u3","u1")),("h",("u3","u2")),("g",("u2","u1")),("e1",("v","u1")),("e2",("v","u2")),("e3",("v","u3")),("f",("v","u2"))])
+
+testHomomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f (convertGraphToWeighted unweighted_bigger_example) (convertGraphToWeighted unweighted_example)
+ where
+  -- the automorphism mapping
+  f (WLPA.AEdge "u1" 1) = vertex 1 "u1"
+  f (WLPA.AEdge "u2" 1) = vertex 1 "u2"
+  f (WLPA.AEdge "u3" 1) = vertex 1 "u3"
+  f (WLPA.AEdge "g" 2) = edge 1 "g"
+  f (WLPA.AEdge "h" 2) = edge 1 "h"
+  f (WLPA.AEdge "i" 2) = edge 1 "i"
+  f (WLPA.AEdge "j" 2) = edge 1 "j"
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
+-}
 
 -- these are mutually orthogonal idempotents
 idems k = (edge 1 "e")^k * (edge 1 "f") * (ghostEdge 1 "f") * (ghostEdge 1 "e")^k
