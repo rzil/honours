@@ -12,43 +12,6 @@ import GraphMonoid
 import Control.Monad (liftM2, liftM3)
 import Control.Monad.Omega
 
-{-
-u.("e",1)*.("e",1) --> [u]
-u.("e",1)*.("f",1) --> []
-u.("f",1)*.("e",1) --> []
-u.("f",1)*.("f",1) --> [u,-1.u.("f",2)*.("f",2)]
-v.("f",1).("f",1)* --> [v,-1.v.("e",1).("e",1)*]
-v.("f",1).("f",2)* --> []
-v.("f",2).("f",1)* --> []
-v.("f",2).("f",2)* --> [v]
-
-automorphism:
-u --> v
-v --> u
-e1 --> f2*
-f1 --> f1*
-f2 --> e1*
-
-almost homomorphism to Example9
-weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
-
-u --> v
-v --> v
-e1 --> e1
-f1 --> f1
-f2 --> f2
-
-identity maps to 2*identity. So identity is not preserved.
-u + v  -->  v + v = 2v
-
-What is the kernel?
-u - v --> v - v = 0
-v - u --> 0
-S = {a u + b v | a + b = 0} --> a v + b v = (a + b) v = 0
-S A --> 0
-A S --> 0
--}
-
 weighted_example :: WeightedGraph String String
 weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u"))]) (M.fromList [("e",1),("f",2)])
 
@@ -57,8 +20,8 @@ unweighted_equivalent_example = Graph (S.fromList ["u1","u2","u3","v"]) (M.fromL
 
 solvedGraph = graphGroupSolve unweighted_equivalent_example
 
--- this tests all relations under the mapping
-test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example (convertGraphToWeighted unweighted_equivalent_example)
+-- this checks the isomorphism L_K(E,w) ~= L_K(F)
+testIsomorphism = WLPA.wLPA_relations_present f weighted_example (convertGraphToWeighted unweighted_equivalent_example)
  where
   f (WLPA.AEdge "e" 1) = (edge "e1") + (edge "e2") + (edge "e3")
   f (WLPA.AEdge "f" 1) = edge "f"
@@ -68,8 +31,8 @@ test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example (c
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero
 
--- this tests all relations under the mapping
-testAutomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example weighted_example
+-- this checks the automorphism involution L_K(E,w) ~= L_K(E,w)
+testAutomorphism = WLPA.wLPA_relations_present f weighted_example weighted_example
  where
   f (WLPA.AEdge "e" 1) = ghostEdge2 "f"
   f (WLPA.AEdge "f" 1) = ghostEdge "f"
@@ -80,20 +43,20 @@ testAutomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighte
   f _ = WLPA.Zero
 
 
--- this tests all relations under the mapping
-testId = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example weighted_example
+-- this checks that the identity map is a automorphism
+testId = WLPA.wLPA_relations_present f weighted_example weighted_example
  where
   f (WLPA.AEdge "e" 1) = edge "e"
   f (WLPA.AEdge "f" 1) = edge "f"
   f (WLPA.AEdge "f" 2) = edge2 "f"
-  f (WLPA.AVertex "u") = WLPA.Zero
+  f (WLPA.AVertex "u") = vertex "u"
   f (WLPA.AVertex "v") = vertex "v"
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero
 
 
 -- search for endomorphisms
-test2 = [(e,f1,f2) | (e,f1,f2) <- allTriples es es es, and (WLPA.wLPA_relations_check (f e f1 f2) weighted_example weighted_example)]
+searchEndos = [(e,f1,f2) | (e,f1,f2) <- allTriples es es es, and (WLPA.wLPA_relations_check (f e f1 f2) weighted_example weighted_example)]
  where
   es = WLPA.elements weighted_example (tail z2)
   f e _  _  (WLPA.AEdge "e" 1) = e
