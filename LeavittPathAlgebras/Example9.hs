@@ -7,6 +7,7 @@ import Graph
 import qualified Data.Map as M
 import qualified Data.Set as S
 import FiniteFields
+import GraphMonoid
 
 import Control.Monad (liftM2, liftM3)
 import Control.Monad.Omega
@@ -55,9 +56,10 @@ test = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f weighted_example we
 
 testZero = putStrLn $ unlines $ map show $ WLPA.wLPA_relations (const WLPA.Zero) weighted_example weighted_example
 
+-- there is a monomorphism from this lpa to the weighted lpa
 unweighted_example = buildGraphFromEdges [ ("g",("u2","u1")), ("h",("u3","u2")), ("i",("u3","u1")), ("j",("u3","u3")) ]
 
-test2 = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f (convertGraphToWeighted unweighted_example) weighted_example
+testMonomorphism = putStrLn $ unlines $ map show $ WLPA.wLPA_relations f (convertGraphToWeighted unweighted_example) weighted_example
  where
   -- the automorphism mapping
   f (WLPA.AEdge "u1" 1) = u1
