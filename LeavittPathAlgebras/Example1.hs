@@ -87,3 +87,44 @@ edge2 = atom . (flip WLPA.edge 2)
 ghostEdge2 :: (Num k) => edge -> WLPA.Term edge vertex k
 ghostEdge2 = atom . (flip WLPA.ghostEdge 2)
 
+u = vertex "u"
+v = vertex "v"
+e1 = edge "e"
+f1 = edge "f"
+f2 = edge2 "f"
+
+s = WLPA.adjoint
+
+v_ = v
+u1_ = (s f2) * f1 * (s f1) * f2
+u2_ = (s f1) * f2 * (s f2) * f1
+u3_ = u - u1_ - u2_
+e1_ = e1 - e2_ - f2 * j_
+e2_ = e1 * u2_
+e3_ = f2 * j_
+f_ = f1
+g_ = (s f1) * f2
+h_ = (s f2) * e2_
+i_ = (s f2) * (e1 - e2_ - f2 * j_)
+j_ = s (u3_ * a)
+ where a = (s (e1 - e2_)) * f2
+
+-- these are the generators x,y,z expressed in terms of the edges of the LPA
+-- this shows the map is invertible, thus injective
+x_ = g_
+y_ = h_ + i_ + j_
+z_ = (s h_ + s i_ + s j_) * (i_ + j_)
+u_ = s y_ * y_
+
+
+-- these three elements from the wLPA generate the unweighted LPA sub-algebra
+x = (s f1) * f2
+y = (s f2) * e1
+z = (s f2) * f2
+
+x' = f1*s e1
+y' = e1*s f2
+z' = e1*s e1
+
+xs = [x,y,z]
+ys = [x',y',z']
