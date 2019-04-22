@@ -136,11 +136,23 @@ fy_ = h_ + i_ + j_
 fz_ = (s h_ + s i_ + s j_) * (i_ + j_)
 fv_ = s fy_ * fy_
 
-ideal = nubBy (\x y -> (nspair x) == y) [(nx,ny) | (nx,fx,x) <- zip3 names fzs zs, (ny,fy,y) <- zip3 names fzs zs, WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) WLPA.Zero]
- where
-  names = ["x","y","z","x*","y*","z*","fx","fy","fz","fx*","fy*","fz*"]
-  ns [c,'*'] = [c]
-  ns [b,c,'*'] = [b,c]
-  ns [c] = [c,'*']
-  ns [b,c] = [b,c,'*']
-  nspair (x,y) = (ns y, ns x)
+ideal = nubBy (\x y -> WLPA.equal_wrt_graph weighted_example (s x) y) [x*y | (fx,x) <- zip fzs zs, (fy,y) <- zip fzs zs, WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) WLPA.Zero]
+
+edgeName :: (WLPA.NormalFormEdge String, WLPA.NormalFormEdge String) -> String
+edgeName (WLPA.NormalFormEdge "f" True 1, WLPA.NormalFormEdge "f" False 2) = "x"
+edgeName (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "e" False 1) = "y"
+edgeName (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "f" False 2) = "z"
+
+edgeName (WLPA.NormalFormEdge "f" False 1, WLPA.NormalFormEdge "e" True 1) = "x'"
+edgeName (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "f" True 2) = "y'"
+edgeName (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "e" True 1) = "z'"
+
+edgeName (x,y) = edgeName (
+   y {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost y)},
+   x {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost x)}) ++ "*"
+
+
+idealNames = map ((map (map edgeName . pairs . WLPA.normalFormAtomPath)) . WLPA.convertToBasisForm weighted_example) ideal
+
+
+
