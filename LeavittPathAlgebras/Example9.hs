@@ -136,7 +136,9 @@ fy_ = h_ + i_ + j_
 fz_ = (s h_ + s i_ + s j_) * (i_ + j_)
 fv_ = s fy_ * fy_
 
-ideal = nubBy (\x y -> WLPA.equal_wrt_graph weighted_example (s x) y) [x*y | (fx,x) <- zip fzs zs, (fy,y) <- zip fzs zs, WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) WLPA.Zero]
+kernelS = nubBy (\x y -> WLPA.equal_wrt_graph weighted_example (s x) y) [x*y | (fx,x) <- zip fzs zs, (fy,y) <- zip fzs zs, WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) WLPA.Zero, not ((WLPA.equal_wrt_graph weighted_example) (x*y) WLPA.Zero)]
+kernelSstar = map s kernelS
+kernel = nubBy (WLPA.equal_wrt_graph weighted_example) (kernelS ++ kernelSstar)
 
 edgeName :: (WLPA.NormalFormEdge String, WLPA.NormalFormEdge String) -> String
 edgeName (WLPA.NormalFormEdge "f" True 1, WLPA.NormalFormEdge "f" False 2) = "x"
@@ -152,7 +154,7 @@ edgeName (x,y) = edgeName (
    x {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost x)}) ++ "*"
 
 
-idealNames = map ((map (map edgeName . pairs . WLPA.normalFormAtomPath)) . WLPA.convertToBasisForm weighted_example) ideal
+kernelSNames = map ((map (map edgeName . pairs . WLPA.normalFormAtomPath)) . WLPA.convertToBasisForm weighted_example) kernelS
 
-
+present s = (putStrLn . unlines . map show) s
 
