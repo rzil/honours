@@ -9,6 +9,9 @@ import qualified Data.Set as S
 import FiniteFields
 import GraphMonoid
 
+weighted_example0 :: WeightedGraph String String
+weighted_example0 = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
+
 weighted_example :: WeightedGraph String String
 weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u"))]) (M.fromList [("e",1),("f",2)])
 
@@ -25,6 +28,8 @@ ghostEdge c = atom c . (flip WLPA.ghostEdge 1)
 
 edge2 c = atom c . (flip WLPA.edge 2)
 ghostEdge2 c = atom c . (flip WLPA.ghostEdge 2)
+
+s = WLPA.adjoint
 
 v = vertex 1 "v"
 u = vertex 1 "u"
@@ -46,7 +51,7 @@ testMonomorphism1 = WLPA.wLPA_relations_present f weighted_example weighted_exam
   f (WLPA.AEdge "f" 1) = f1
   f (WLPA.AEdge "f" 2) = f2
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
-  f _ = WLPA.Zero 
+  f _ = WLPA.Zero
 
 testMonomorphism2 = WLPA.wLPA_relations_present f weighted_example weighted_example2
  where
@@ -56,7 +61,7 @@ testMonomorphism2 = WLPA.wLPA_relations_present f weighted_example weighted_exam
   f (WLPA.AEdge "f" 1) = h1
   f (WLPA.AEdge "f" 2) = h2
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
-  f _ = WLPA.Zero 
+  f _ = WLPA.Zero
 
 testMonomorphism3 = WLPA.wLPA_relations_present f weighted_example weighted_example3
  where
@@ -66,4 +71,13 @@ testMonomorphism3 = WLPA.wLPA_relations_present f weighted_example weighted_exam
   f (WLPA.AEdge "f" 1) = f1
   f (WLPA.AEdge "f" 2) = f2
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
-  f _ = WLPA.Zero 
+  f _ = WLPA.Zero
+
+testMonomorphism4 = WLPA.wLPA_relations_present f weighted_example0 weighted_example3
+ where
+  f (WLPA.AVertex "v") = v + u
+  f (WLPA.AEdge "e" 1) = e1 + g1
+  f (WLPA.AEdge "f" 1) = f1 + h1
+  f (WLPA.AEdge "f" 2) = f2 + h2
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
