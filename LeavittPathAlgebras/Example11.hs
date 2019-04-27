@@ -82,7 +82,7 @@ testMonomorphism4 = WLPA.wLPA_relations_present f weighted_example0 weighted_exa
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero
 
-testHomomorphism = WLPA.wLPA_relations_present f weighted_example3 weighted_example
+testHomomorphism1 = WLPA.wLPA_relations_present f weighted_example3 weighted_example
  where
   f (WLPA.AEdge "e" 1) = e1
   f (WLPA.AEdge "f" 1) = f1
@@ -93,5 +93,14 @@ testHomomorphism = WLPA.wLPA_relations_present f weighted_example3 weighted_exam
   f (WLPA.AEdge "h" 1) = s f1
   f (WLPA.AEdge "h" 2) = s e1
   
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
+
+testHomomorphism2 = WLPA.wLPA_relations_present f weighted_example0 weighted_example
+ where
+  f (WLPA.AVertex "v") = v + u
+  f (WLPA.AEdge "e" 1) = e1 + s f2
+  f (WLPA.AEdge "f" 1) = f1 + s f1
+  f (WLPA.AEdge "f" 2) = f2 + s e1
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero
