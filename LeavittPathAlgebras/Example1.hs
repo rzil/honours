@@ -128,3 +128,9 @@ z' = e1*s e1
 
 xs = [x,y,z]
 ys = [x',y',z']
+
+ff2 = s $ (edge "e1") + (edge "e2") + (edge "e3")
+ff1 = s $ edge "f"
+fe1 = s $ (edge "f") * (edge "g") + (edge "e1") * (ghostEdge "i") + (edge "e2") * (ghostEdge "h") + (edge "e3") * (ghostEdge "j")
+fv = (vertex "u1") + (vertex "u2") + (vertex "u3")
+fu = vertex "v"

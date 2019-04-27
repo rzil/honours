@@ -21,27 +21,27 @@ weighted_example2 = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v
 weighted_example3 :: WeightedGraph String String
 weighted_example3 = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u")),("g",("u","v")),("h",("u","v"))]) (M.fromList [("e",1),("f",2),("g",1),("h",2)])
 
-atom c = WLPA.Atom c
-vertex c = atom c . WLPA.vertex
-edge c = atom c . (flip WLPA.edge 1)
-ghostEdge c = atom c . (flip WLPA.ghostEdge 1)
+atom = WLPA.Atom 1
+vertex = atom . WLPA.vertex
+edge = atom . (flip WLPA.edge 1)
+ghostEdge = atom . (flip WLPA.ghostEdge 1)
 
-edge2 c = atom c . (flip WLPA.edge 2)
-ghostEdge2 c = atom c . (flip WLPA.ghostEdge 2)
+edge2 = atom . (flip WLPA.edge 2)
+ghostEdge2 = atom . (flip WLPA.ghostEdge 2)
 
 s = WLPA.adjoint
 
-v = vertex 1 "v"
-u = vertex 1 "u"
-w = vertex 1 "w"
+v = vertex "v"
+u = vertex "u"
+w = vertex "w"
 
-e1 = edge 1 "e"
-f1 = edge 1 "f"
-f2 = edge2 1 "f"
+e1 = edge "e"
+f1 = edge "f"
+f2 = edge2 "f"
 
-g1 = edge 1 "g"
-h1 = edge 1 "h"
-h2 = edge2 1 "h"
+g1 = edge "g"
+h1 = edge "h"
+h2 = edge2 "h"
 
 testMonomorphism1 = WLPA.wLPA_relations_present f weighted_example weighted_example2
  where
@@ -79,5 +79,19 @@ testMonomorphism4 = WLPA.wLPA_relations_present f weighted_example0 weighted_exa
   f (WLPA.AEdge "e" 1) = e1 + g1
   f (WLPA.AEdge "f" 1) = f1 + h1
   f (WLPA.AEdge "f" 2) = f2 + h2
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero
+
+testHomomorphism = WLPA.wLPA_relations_present f weighted_example3 weighted_example
+ where
+  f (WLPA.AEdge "e" 1) = e1
+  f (WLPA.AEdge "f" 1) = f1
+  f (WLPA.AEdge "f" 2) = f2
+  f (WLPA.AVertex "u") = u
+  f (WLPA.AVertex "v") = v
+  f (WLPA.AEdge "g" 1) = s f2
+  f (WLPA.AEdge "h" 1) = s f1
+  f (WLPA.AEdge "h" 2) = s e1
+  
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero
