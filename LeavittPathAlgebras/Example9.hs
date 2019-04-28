@@ -26,7 +26,8 @@ testZero = WLPA.wLPA_relations_present (const WLPA.Zero) weighted_example weight
 -- there is a monomorphism from this lpa to the weighted lpa
 unweighted_example = buildGraphFromEdges [ ("g",("u2","u1")), ("h",("u3","u2")), ("i",("u3","u1")), ("j",("u3","u3")) ]
 
-testMonomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweighted_example) weighted_example
+-- this tests we have a well defined homomorphism
+testHomomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweighted_example) weighted_example
  where
   f (WLPA.AVertex "u1") = u1
   f (WLPA.AVertex "u2") = u2
@@ -38,8 +39,34 @@ testMonomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweigh
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero 
 
+-- this tests that the homomorphism is injective
+testMonomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweighted_example) (convertGraphToWeighted unweighted_example)
+ where
+  f (WLPA.AVertex "u1") = u1_
+  f (WLPA.AVertex "u2") = u2_
+  f (WLPA.AVertex "u3") = u3_
+  f (WLPA.AEdge "g" 1) = g_
+  f (WLPA.AEdge "h" 1) = h_
+  f (WLPA.AEdge "i" 1) = i_
+  f (WLPA.AEdge "j" 1) = j_
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero 
+
+-- this tests for a homomorphism from the Toeplitz algebra
+testToeplitzHomomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted toeplitz_example) (convertGraphToWeighted unweighted_example)
+ where
+  f (WLPA.AVertex "u1") = vertex 1 "u1" + vertex 1 "u2"
+  f (WLPA.AVertex "u2") = vertex 1 "u3"
+  f (WLPA.AEdge "a" 1) = edge 1 "j"
+  f (WLPA.AEdge "b" 1) = edge 1 "h" + edge 1 "i"
+  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
+  f _ = WLPA.Zero 
+
 -- these are mutually orthogonal idempotents
 idems k = (edge 1 "e")^k * (edge 1 "f") * (ghostEdge 1 "f") * (ghostEdge 1 "e")^k
+
+toeplitz_example :: Graph String String
+toeplitz_example = buildGraphFromEdges [("a",("u2","u2")),("b",("u2","u1"))]
 
 -- GK dim = infinity
 weighted_example :: WeightedGraph String String
@@ -65,6 +92,10 @@ x = (s f1) * f2
 y = (s f2) * e1
 z = (s f2) * f2
 
+x' = f1*s e1
+y' = e1*s f2
+z' = e1*s e1
+
 -- these are the vertices of the unweighted LPA
 u1 = (s x) * x
 u2 = x * (s x)
@@ -78,83 +109,21 @@ i = y*(z - y * (s y))
 
 -- these are the generators x,y,z expressed in terms of the edges of the LPA
 -- this shows the map is invertible, thus injective
-x_ = g
-y_ = h + i + j
-z_ = (s h + s i + s j) * (i + j)
+x_ = edge 1 "g"
+y_ = edge 1 "h" + edge 1 "i" + edge 1 "j"
+z_ = (s (edge 1 "h") + s (edge 1 "i") + s (edge 1 "j")) * (edge 1 "i" + edge 1 "j")
 v_ = s y_ * y_
 
-x' = f1*s e1
-y' = e1*s f2
-z' = e1*s e1
+-- these are the vertices of the unweighted LPA
+u1_ = (s x_) * x_
+u2_ = x_ * (s x_)
+u3_ = (s y_) * y_ - (s x_) * x_ - x_ * (s x_)
 
-xs = [x,y,z]
-ys = [x',y',z']
-zs = nubBy (WLPA.equal_wrt_graph weighted_example) $ xs++map WLPA.adjoint xs++ys++map WLPA.adjoint ys
-
-fzs = map (nfFunc . WLPA.convertToBasisForm weighted_example) zs
-
-testHomomorphism = [(WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) (nfFunc (WLPA.convertToBasisForm weighted_example (x*y))),x,y) | (fx,x) <- zip fzs zs, (fy,y) <- zip fzs zs]
-
-pairs [] = []
-pairs (x:y:xs) = (x,y) : pairs xs
-
-nfSum [] = WLPA.Zero
-nfSum xs = foldl1 (+) xs
-
-nfProd [] = vertex 1 "u1" + vertex 1 "u2" + vertex 1 "u3"
-nfProd xs = foldl1 (*) xs
-
-nfFunc :: [WLPA.NormalFormAtom String String Int] -> WLPA.Term String String Int
-nfFunc nfs = nfSum (map nfAtomfunc nfs)
-
-nfAtomfunc :: WLPA.NormalFormAtom String String Int -> WLPA.Term String String Int
-nfAtomfunc (WLPA.NormalFormAtom coeff vert path) = (vertex coeff "u1" + vertex coeff "u2" + vertex coeff "u3") * (nfProd (map edgeFunc (pairs path)))
-
-edgeFunc :: (WLPA.NormalFormEdge String, WLPA.NormalFormEdge String) -> WLPA.Term String String Int
-edgeFunc (WLPA.NormalFormEdge "f" True 1, WLPA.NormalFormEdge "f" False 2) = fx_
-edgeFunc (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "e" False 1) = fy_
-edgeFunc (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "f" False 2) = fz_
-
-edgeFunc (WLPA.NormalFormEdge "f" False 1, WLPA.NormalFormEdge "e" True 1) = fx_
-edgeFunc (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "f" True 2) = fy_
-edgeFunc (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "e" True 1) = fz_
-
-edgeFunc (x,y) = s $ edgeFunc (
-   y {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost y)},
-   x {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost x)})
-
-u1_ = vertex 1 "u1"
-u2_ = vertex 1 "u2"
-u3_ = vertex 1 "u3"
-g_ = edge 1 "g"
-h_ = edge 1 "h"
-i_ = edge 1 "i"
-j_ = edge 1 "j"
-
-fx_ = g_
-fy_ = h_ + i_ + j_
-fz_ = (s h_ + s i_ + s j_) * (i_ + j_)
-fv_ = s fy_ * fy_
-
-kernelS = nubBy (\x y -> WLPA.equal_wrt_graph weighted_example (s x) y) [x*y | (fx,x) <- zip fzs zs, (fy,y) <- zip fzs zs, WLPA.equal_wrt_graph (convertGraphToWeighted unweighted_example) (fx*fy) WLPA.Zero, not ((WLPA.equal_wrt_graph weighted_example) (x*y) WLPA.Zero)]
-kernelSstar = map s kernelS
-kernel = nubBy (WLPA.equal_wrt_graph weighted_example) (kernelS ++ kernelSstar)
-
-edgeName :: (WLPA.NormalFormEdge String, WLPA.NormalFormEdge String) -> String
-edgeName (WLPA.NormalFormEdge "f" True 1, WLPA.NormalFormEdge "f" False 2) = "x"
-edgeName (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "e" False 1) = "y"
-edgeName (WLPA.NormalFormEdge "f" True 2, WLPA.NormalFormEdge "f" False 2) = "z"
-
-edgeName (WLPA.NormalFormEdge "f" False 1, WLPA.NormalFormEdge "e" True 1) = "x'"
-edgeName (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "f" True 2) = "y'"
-edgeName (WLPA.NormalFormEdge "e" False 1, WLPA.NormalFormEdge "e" True 1) = "z'"
-
-edgeName (x,y) = edgeName (
-   y {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost y)},
-   x {WLPA.normalFormEdgeIsGhost = not (WLPA.normalFormEdgeIsGhost x)}) ++ "*"
-
-
-kernelSNames = map ((map (map edgeName . pairs . WLPA.normalFormAtomPath)) . WLPA.convertToBasisForm weighted_example) kernelS
+-- these are the edges of the unweighted LPA
+g_ = x_
+h_ = y_ - y_*z_
+j_ = y_^2 * (s y_)
+i_ = y_*(z_ - y_ * (s y_))
 
 present s = (putStrLn . unlines . map show) s
 
