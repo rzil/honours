@@ -39,19 +39,6 @@ testHomomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweigh
   f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
   f _ = WLPA.Zero 
 
--- this tests that the homomorphism is injective
-testMonomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted unweighted_example) (convertGraphToWeighted unweighted_example)
- where
-  f (WLPA.AVertex "u1") = u1_
-  f (WLPA.AVertex "u2") = u2_
-  f (WLPA.AVertex "u3") = u3_
-  f (WLPA.AEdge "g" 1) = g_
-  f (WLPA.AEdge "h" 1) = h_
-  f (WLPA.AEdge "i" 1) = i_
-  f (WLPA.AEdge "j" 1) = j_
-  f (WLPA.AGhostEdge e w) = WLPA.adjoint (f (WLPA.AEdge e w))
-  f _ = WLPA.Zero 
-
 -- this tests for a homomorphism from the Toeplitz algebra
 testToeplitzHomomorphism = WLPA.wLPA_relations_present f (convertGraphToWeighted toeplitz_example) (convertGraphToWeighted unweighted_example)
  where
@@ -106,24 +93,6 @@ g = x
 h = y - y*z
 j = y^2 * (s y)
 i = y*(z - y * (s y))
-
--- these are the generators x,y,z expressed in terms of the edges of the LPA
--- this shows the map is invertible, thus injective
-x_ = edge 1 "g"
-y_ = edge 1 "h" + edge 1 "i" + edge 1 "j"
-z_ = (s (edge 1 "h") + s (edge 1 "i") + s (edge 1 "j")) * (edge 1 "i" + edge 1 "j")
-v_ = s y_ * y_
-
--- these are the vertices of the unweighted LPA
-u1_ = (s x_) * x_
-u2_ = x_ * (s x_)
-u3_ = (s y_) * y_ - (s x_) * x_ - x_ * (s x_)
-
--- these are the edges of the unweighted LPA
-g_ = x_
-h_ = y_ - y_*z_
-j_ = y_^2 * (s y_)
-i_ = y_*(z_ - y_ * (s y_))
 
 present s = (putStrLn . unlines . map show) s
 

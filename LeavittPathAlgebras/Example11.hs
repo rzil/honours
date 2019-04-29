@@ -1,13 +1,9 @@
 module Example11 where
 
--- Example 19 from arXiv 1807.11675
-
 import qualified WeightedLPA as WLPA
 import Graph
 import qualified Data.Map as M
 import qualified Data.Set as S
-import FiniteFields
-import GraphMonoid
 
 weighted_example0 :: WeightedGraph String String
 weighted_example0 = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
