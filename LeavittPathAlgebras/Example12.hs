@@ -7,7 +7,7 @@ import qualified Data.Set as S
 
 
 atom c = WLPA.Atom c
-vertex c = atom c . WLPA.vertex
+vertex = atom 1 . WLPA.vertex
 
 edge = atom 1 . (flip WLPA.edge 1)
 ghostEdge = atom 1 . (flip WLPA.ghostEdge 1)
@@ -48,3 +48,5 @@ g = x
 h = y - y*z
 j = y^2 * (s y)
 i = y*(z - y * (s y))
+
+test = map (WLPA.convertToBasisForm (convertGraphToWeighted graph_F)) [u1,u2,u3,g,h,j,i]
