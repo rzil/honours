@@ -75,7 +75,8 @@ logicalMatrices :: Num a => Int -> [Matrix a]
 logicalMatrices n = [matrix n n (\(r,c) -> xs!!(n*(r-1)+(c-1))) | xs <- listsLengthNFrom (n*n) [0,1]]
 
 --logicalMatricesConstantDiagonal :: Num a => Int -> [Matrix a]
-logicalMatricesConstantDiagonal k n = [matrix n n (\(r,c) -> if r == c then k else xs!!(n*(r-1 - (if r>c then 1 else 0))+(c-1))) | xs <- listsLengthNFrom (n * (n-1)) [0,1]]
+--logicalMatricesConstantDiagonal k n = [matrix n n (\(r,c) -> if r == c then k else xs!!(n*(r-1 - (if r>c then 1 else 0))+(c-1))) | xs <- listsLengthNFrom (n * (n-1)) [0,1]]
+logicalMatricesConstantDiagonal k n = [matrix n n (\(r,c) -> if r == c then k else xs!!(n*(r-1 - (if r>c then 1 else 0))+(c-1))) | xs <- listsLengthNFrom (n * (n-1)) [0..2]]
 
 -- | https://en.wikipedia.org/wiki/Directed_acyclic_graph#Combinatorial_enumeration
 labelledDAGs :: Int -> [Graph (Int, Int, Int) Int]

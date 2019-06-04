@@ -74,25 +74,9 @@ f2 = edge2 1 "f"
 
 s = WLPA.adjoint
 
--- these three elements from the wLPA generate the unweighted LPA sub-algebra
-x = (s f1) * f2
-y = (s f2) * e1
-z = (s f2) * f2
-
 x' = f1*s e1
 y' = e1*s f2
 z' = e1*s e1
-
--- these are the vertices of the unweighted LPA
-u1 = (s x) * x
-u2 = x * (s x)
-u3 = (s y) * y - (s x) * x - x * (s x)
-
--- these are the edges of the unweighted LPA
-g = x
-h = y - y*z
-j = y^2 * (s y)
-i = y*(z - y * (s y))
 
 present s = (putStrLn . unlines . map show) s
 

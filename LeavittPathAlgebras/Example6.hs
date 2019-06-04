@@ -11,42 +11,33 @@ weighted_example = WeightedGraph (buildGraphFromEdges [("e",("v","u")), ("f",("v
 unweighted_equivalent_example :: Graph String String
 unweighted_equivalent_example = buildGraphFromEdges [("a1",("v","u1")),("a2",("u1","u2")),("b1",("v","w")),("c1",("w","u11"))]
 
---
+atom c = WLPA.Atom c
+vertex = atom 1 . WLPA.vertex
 
-vertex = WLPA.atom . WLPA.vertex
-edge = WLPA.atom . (flip WLPA.edge 1)
-edge2 = WLPA.atom . (flip WLPA.edge 2)
-ghostEdge = WLPA.atom . (flip WLPA.ghostEdge 1)
+edge = atom 1 . (flip WLPA.edge 1)
+ghostEdge = atom 1 . (flip WLPA.ghostEdge 1)
+edge2 = atom 1 . (flip WLPA.edge 2)
+ghostEdge2 = atom 1 . (flip WLPA.ghostEdge 2)
 
-u = vertex "u1" + vertex "u2" + vertex "u11"
+s = WLPA.adjoint
+
+u1 = vertex "u1"
+u2 = vertex "u2"
+u11 = vertex "u11"
 v = vertex "v"
 w = vertex "w"
-e1 = edge "a1"
-e2 = edge "a1" * edge "a2" + edge "b1" * edge "c1"
-f1 = edge "b1"
+a1 = edge "a1"
+a2 = edge "a2"
+b1 = edge "b1"
+c1 = edge "c1"
 
--- inverse map
-v_ = vertex "v"
-w_ = vertex "w"
-a1_ = edge "e"
-b_ = edge "f"
-c_ = (ghostEdge "f") * (edge2 "e")
-a2_ = (ghostEdge "e") * (edge2 "e")
-u1_ = (WLPA.adjoint a1_) * a1_
-u2_ = (WLPA.adjoint a2_) * a2_
-u11_ = (WLPA.adjoint c_) * c_
-
-convertToBasisForm = WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example)
-convertToBasisFormWeighted = WLPA.convertToBasisForm weighted_example
-
-showMapping = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map show non_nods) (map show non_nods_reduced))
+testHomomorphism = WLPA.wLPA_relations_present phi weighted_example (convertGraphToWeighted unweighted_equivalent_example)
  where
-  twos = map (WLPA.pathToNormalForm weighted_example) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph weighted_example)) 2
-  non_nods = filter (not . WLPA.isNodPath weighted_example) twos
-  non_nods_reduced = map (WLPA.convertToBasisForm weighted_example . WLPA.convertTerm) non_nods
-
-showInverseMapping = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map show non_nods) (map show non_nods_reduced))
- where
-  twos = map (WLPA.pathToNormalForm (convertGraphToWeighted unweighted_equivalent_example)) $ S.toList $ paths (doubleGraph (directedGraphAssociatedToWeightedGraph (convertGraphToWeighted unweighted_equivalent_example))) 2
-  non_nods = filter (not . WLPA.isNodPath (convertGraphToWeighted unweighted_equivalent_example)) twos
-  non_nods_reduced = map (WLPA.convertToBasisForm (convertGraphToWeighted unweighted_equivalent_example) . WLPA.convertTerm) non_nods
+  phi (WLPA.AVertex "u") = u1 + u2 + u11
+  phi (WLPA.AVertex "v") = v
+  phi (WLPA.AVertex "w") = w
+  phi (WLPA.AEdge "e" 1) = a1
+  phi (WLPA.AEdge "e" 2) = a1 * a2 + b1 * c1
+  phi (WLPA.AEdge "f" 1) = b1
+  phi (WLPA.AGhostEdge e w) = WLPA.adjoint (phi (WLPA.AEdge e w))
+  phi _ = WLPA.Zero
