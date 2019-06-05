@@ -9,7 +9,7 @@ weighted_example :: WeightedGraph String String
 weighted_example = WeightedGraph (buildGraphFromEdges [("g",("x","u")),("e",("v","u")), ("f",("v","w"))]) (M.fromList [("e",3),("f",1),("g",1)])
 
 unweighted_equivalent_example :: Graph String String
-unweighted_equivalent_example = buildGraphFromEdges [("k1",("x","u1")),("k2",("x","u2")),("k3",("x","u3")),("k4",("x","u4")),("k5",("x","u5")),("a1",("v","u1")),("a2",("u1","u2")),("b",("v","w")),("c",("w","u3")),("d",("u3","u4")),("a3",("u2","u5"))]
+unweighted_equivalent_example = buildGraphFromEdges [("k1",("x","u1")),("k2",("x","u2")),("k3",("x","u3")),("k4",("x","u4")),("k5",("x","u5")),("a1",("v","u1")),("a2",("u1","u2")),("b",("v","w")),("c",("w","u4")),("d",("u4","u5")),("a3",("u2","u3"))]
 
 testHomomorphism = WLPA.wLPA_relations_present phi weighted_example (convertGraphToWeighted unweighted_equivalent_example)
  where
@@ -44,9 +44,9 @@ testHomomorphism2 = WLPA.wLPA_relations_present phi (convertGraphToWeighted unwe
   phi (WLPA.AEdge "a1" 1) = edge "e"
   phi (WLPA.AEdge "b" 1) = edge "f"
   phi (WLPA.AVertex "u1") = s (edge "e") * edge "e"
-  phi (WLPA.AEdge "a2" 1) = s (edge "e") * edge2 "e" * (phi u1)
+  phi (WLPA.AEdge "a2" 1) = s (edge "e") * edge2 "e"
   phi (WLPA.AVertex "u2") = s (phi a2) * (phi a2)
-  phi (WLPA.AEdge "a3" 1) = s (phi a2) * s (phi a1) * edge3 "e" * (phi u2)
+  phi (WLPA.AEdge "a3" 1) = s (phi a2) * s (phi a1) * edge3 "e"
   phi (WLPA.AVertex "u3") = s (phi a3) * (phi a3)
   phi (WLPA.AEdge "c" 1) = s (edge "f") * edge2 "e"
   phi (WLPA.AEdge "d" 1) = s (phi c) * s (edge "f") * edge3 "e"
@@ -96,38 +96,3 @@ ghostEdge3 = atom 1 . (flip WLPA.ghostEdge 3)
 
 s = WLPA.adjoint
 
-
-{-
-u1 = WLPA.AVertex "u1"
-u2 = WLPA.AVertex "u2"
-u3 = WLPA.AVertex "u3"
-u4 = WLPA.AVertex "u4"
-u5 = WLPA.AVertex "u5"
-a1 = WLPA.AEdge "a1" 1
-a2 = WLPA.AEdge "a2" 1
-a3 = WLPA.AEdge "a3" 1
-c = WLPA.AEdge "c" 1
-d = WLPA.AEdge "d" 1
-
-phi (WLPA.AVertex "v") = vertex "v"
-phi (WLPA.AVertex "w") = vertex "w"
-phi (WLPA.AVertex "x") = vertex "x"
-phi (WLPA.AEdge "a1" 1) = edge "e"
-phi (WLPA.AEdge "b" 1) = edge "f"
-phi (WLPA.AVertex "u1") = s (edge "e") * edge "e"
-phi (WLPA.AEdge "a2" 1) = s (edge "e") * edge "e" * (phi u1)
-phi (WLPA.AVertex "u2") = s (phi a2) * (phi a2)
-phi (WLPA.AEdge "a3" 1) = s (phi a2) * s (phi a1) * edge3 "e" * (phi u2)
-phi (WLPA.AVertex "u3") = s (phi a3) * (phi a3)
-phi (WLPA.AEdge "c" 1) = s (edge "f") * edge2 "e"
-phi (WLPA.AEdge "d" 1) = s (phi c) * s (edge "f") * edge3 "e"
-phi (WLPA.AVertex "u4") = s (phi c) * (phi c)
-phi (WLPA.AVertex "u5") = s (phi d) * (phi d)
-phi (WLPA.AEdge "k1" 1) = edge "g" * phi u1
-phi (WLPA.AEdge "k2" 1) = edge "g" * phi u2
-phi (WLPA.AEdge "k3" 1) = edge "g" * phi u3
-phi (WLPA.AEdge "k4" 1) = edge "g" * phi u4
-phi (WLPA.AEdge "k5" 1) = edge "g" * phi u5
-phi (WLPA.AGhostEdge e w) = WLPA.adjoint (phi (WLPA.AEdge e w))
-phi _ = WLPA.Zero
--}
