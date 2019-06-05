@@ -75,6 +75,17 @@ printTerm Zero = "0"
 instance (Show e, Show v, Show k, Eq k, Num k) => Show (Term e v k) where
    show = printTerm
 
+scalarProduct :: Num k => k -> Term edge vertex k -> Term edge vertex k
+scalarProduct k (Op Add u v) = Op Add (scalarProduct k u) (scalarProduct k v)
+scalarProduct k (Op Product u v) = Op Product (scalarProduct k u) v
+scalarProduct k (Atom l x) = Atom (k * l) x
+scalarProduct _ Zero = Zero
+
+gmap :: (Num k) => (AtomType edge1 vertex1 -> Term edge vertex k) -> Term edge1 vertex1 k -> Term edge vertex k
+gmap f (Op o u v) = Op o (gmap f u) (gmap f v)
+gmap f (Atom k x) = scalarProduct k (f x)
+gmap _ Zero = Zero
+
 adjoint :: Term e v k -> Term e v k
 adjoint (Op Add u v) = Op Add (adjoint u) (adjoint v)
 adjoint (Op Product u v) = Op Product (adjoint v) (adjoint u)

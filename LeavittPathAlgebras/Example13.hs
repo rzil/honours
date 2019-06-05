@@ -12,53 +12,58 @@ unweighted_equivalent_example :: Graph String String
 unweighted_equivalent_example = buildGraphFromEdges [("k1",("x","u1")),("k2",("x","u2")),("k3",("x","u3")),("k4",("x","u4")),("k5",("x","u5")),("a1",("v","u1")),("a2",("u1","u2")),("b",("v","w")),("c",("w","u4")),("d",("u4","u5")),("a3",("u2","u3"))]
 
 testHomomorphism = WLPA.wLPA_relations_present phi weighted_example (convertGraphToWeighted unweighted_equivalent_example)
- where
-  phi (WLPA.AVertex "u") = u1 + u2 + u3 + u4 + u5
-  phi (WLPA.AVertex "v") = v
-  phi (WLPA.AVertex "w") = w
-  phi (WLPA.AVertex "x") = x
-  phi (WLPA.AEdge "e" 1) = a1
-  phi (WLPA.AEdge "e" 2) = a1 * a2 + b * c
-  phi (WLPA.AEdge "e" 3) = a1 * a2 * a3 + b * c * d
-  phi (WLPA.AEdge "f" 1) = b
-  phi (WLPA.AEdge "g" 1) = k1 + k2 + k3 + k4 + k5
-  phi (WLPA.AGhostEdge e w) = WLPA.adjoint (phi (WLPA.AEdge e w))
-  phi _ = WLPA.Zero
 
-testHomomorphism2 = WLPA.wLPA_relations_present phi (convertGraphToWeighted unweighted_equivalent_example) weighted_example
- where
-  u1 = WLPA.AVertex "u1"
-  u2 = WLPA.AVertex "u2"
-  u3 = WLPA.AVertex "u3"
-  u4 = WLPA.AVertex "u4"
-  u5 = WLPA.AVertex "u5"
-  a1 = WLPA.AEdge "a1" 1
-  a2 = WLPA.AEdge "a2" 1
-  a3 = WLPA.AEdge "a3" 1
-  c = WLPA.AEdge "c" 1
-  d = WLPA.AEdge "d" 1
-  
-  phi (WLPA.AVertex "v") = vertex "v"
-  phi (WLPA.AVertex "w") = vertex "w"
-  phi (WLPA.AVertex "x") = vertex "x"
-  phi (WLPA.AEdge "a1" 1) = edge "e"
-  phi (WLPA.AEdge "b" 1) = edge "f"
-  phi (WLPA.AVertex "u1") = s (edge "e") * edge "e"
-  phi (WLPA.AEdge "a2" 1) = s (edge "e") * edge2 "e"
-  phi (WLPA.AVertex "u2") = s (phi a2) * (phi a2)
-  phi (WLPA.AEdge "a3" 1) = s (phi a2) * s (phi a1) * edge3 "e"
-  phi (WLPA.AVertex "u3") = s (phi a3) * (phi a3)
-  phi (WLPA.AEdge "c" 1) = s (edge "f") * edge2 "e"
-  phi (WLPA.AEdge "d" 1) = s (phi c) * s (edge "f") * edge3 "e"
-  phi (WLPA.AVertex "u4") = s (phi c) * (phi c)
-  phi (WLPA.AVertex "u5") = s (phi d) * (phi d)
-  phi (WLPA.AEdge "k1" 1) = edge "g" * phi u1
-  phi (WLPA.AEdge "k2" 1) = edge "g" * phi u2
-  phi (WLPA.AEdge "k3" 1) = edge "g" * phi u3
-  phi (WLPA.AEdge "k4" 1) = edge "g" * phi u4
-  phi (WLPA.AEdge "k5" 1) = edge "g" * phi u5
-  phi (WLPA.AGhostEdge e w) = WLPA.adjoint (phi (WLPA.AEdge e w))
-  phi _ = WLPA.Zero
+phi (WLPA.AVertex "u") = u1 + u2 + u3 + u4 + u5
+phi (WLPA.AVertex "v") = v
+phi (WLPA.AVertex "w") = w
+phi (WLPA.AVertex "x") = x
+phi (WLPA.AEdge "e" 1) = a1
+phi (WLPA.AEdge "e" 2) = a1 * a2 + b * c
+phi (WLPA.AEdge "e" 3) = a1 * a2 * a3 + b * c * d
+phi (WLPA.AEdge "f" 1) = b
+phi (WLPA.AEdge "g" 1) = k1 + k2 + k3 + k4 + k5
+phi (WLPA.AGhostEdge e w) = WLPA.adjoint (phi (WLPA.AEdge e w))
+phi _ = WLPA.Zero
+
+testHomomorphism2 = WLPA.wLPA_relations_present psi (convertGraphToWeighted unweighted_equivalent_example) weighted_example
+
+psi (WLPA.AVertex "v") = vertex "v"
+psi (WLPA.AVertex "w") = vertex "w"
+psi (WLPA.AVertex "x") = vertex "x"
+psi (WLPA.AEdge "a1" 1) = edge "e"
+psi (WLPA.AEdge "b" 1) = edge "f"
+psi (WLPA.AVertex "u1") = s (edge "e") * edge "e"
+psi (WLPA.AEdge "a2" 1) = s (edge "e") * edge2 "e"
+psi (WLPA.AVertex "u2") = s (psi a2') * (psi a2')
+psi (WLPA.AEdge "a3" 1) = s (psi a2') * s (psi a1') * edge3 "e"
+psi (WLPA.AVertex "u3") = s (psi a3') * (psi a3')
+psi (WLPA.AEdge "c" 1) = s (edge "f") * edge2 "e"
+psi (WLPA.AEdge "d" 1) = s (psi c') * s (edge "f") * edge3 "e"
+psi (WLPA.AVertex "u4") = s (psi c') * (psi c')
+psi (WLPA.AVertex "u5") = s (psi d') * (psi d')
+psi (WLPA.AEdge "k1" 1) = edge "g" * psi u1'
+psi (WLPA.AEdge "k2" 1) = edge "g" * psi u2'
+psi (WLPA.AEdge "k3" 1) = edge "g" * psi u3'
+psi (WLPA.AEdge "k4" 1) = edge "g" * psi u4'
+psi (WLPA.AEdge "k5" 1) = edge "g" * psi u5'
+psi (WLPA.AGhostEdge e w) = WLPA.adjoint (psi (WLPA.AEdge e w))
+psi _ = WLPA.Zero
+
+testComposition = map (WLPA.convertToBasisForm weighted_example) (map composition generators)
+ where generators = [WLPA.AVertex "u",WLPA.AVertex "v",WLPA.AVertex "w",WLPA.AVertex "x",WLPA.AEdge "e" 1,WLPA.AEdge "e" 2,WLPA.AEdge "e" 3,WLPA.AEdge "f" 1,WLPA.AEdge "g" 1]
+
+composition = WLPA.gmap psi . phi
+
+u1' = WLPA.AVertex "u1"
+u2' = WLPA.AVertex "u2"
+u3' = WLPA.AVertex "u3"
+u4' = WLPA.AVertex "u4"
+u5' = WLPA.AVertex "u5"
+a1' = WLPA.AEdge "a1" 1
+a2' = WLPA.AEdge "a2" 1
+a3' = WLPA.AEdge "a3" 1
+c' = WLPA.AEdge "c" 1
+d' = WLPA.AEdge "d" 1
 
 u1 = vertex "u1"
 u2 = vertex "u2"
