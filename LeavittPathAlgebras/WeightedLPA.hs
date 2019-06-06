@@ -276,8 +276,8 @@ showMapping graph = putStrLn $ unlines (zipWith (\a b -> a ++ " --> " ++ b) (map
 sum' [x] = x
 sum' (x:xs) = x + sum' xs
 
-wLPA_relations_map :: (Eq vertex, Num b, Ord edge) => (AtomType edge vertex -> b) -> WeightedGraph edge vertex -> [b]
-wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ four
+wLPA_relations_map' :: (Eq vertex, Num b, Ord edge) => b -> (AtomType edge vertex -> b) -> WeightedGraph edge vertex -> [b]
+wLPA_relations_map' zero f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ four
  where
     vs = S.toList $ vertices (graph wgraph)
     es = M.keys $ edges (graph wgraph)
@@ -286,7 +286,6 @@ wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ fo
     w e = (weightings wgraph) M.! e
     edgesAt v = filter ((v ==) . s) es
     maxEdgeWeightAt v = maximum (0 : map w (edgesAt v))
-    zero = fromInteger 0
     one = [(f$vertex v) * (f$vertex w) - (if v == w then f$vertex v else zero) | v <- vs, w <- vs]
     two1 = [(f$vertex$s e) * (f$edge e i) - (f$edge e i) | e <- es, i <- [1 .. (weightings wgraph) M.! e]]
     two2 = [(f$edge e i) * (f$vertex$r e) - (f$edge e i) | e <- es, i <- [1 .. (weightings wgraph) M.! e]]
@@ -294,6 +293,9 @@ wLPA_relations_map f wgraph = one ++ two1 ++ two2 ++ two3 ++ two4 ++ three ++ fo
     two4 = [(f$ghostEdge e i) * (f$vertex$s e) - (f$ghostEdge e i) | e <- es, i <- [1 .. w e]]
     three = [sum' [(f$edge e i) * (f$ghostEdge e j) | e <- edgesAt v] - (if i == j then f$vertex v else zero) | v <- vs, i <- [1 .. maxEdgeWeightAt v], j <- [1 .. maxEdgeWeightAt v]]
     four = [let m = max (w e) (w e') in sum' [(f$ghostEdge e i) * (f$edge e' i) | i <- [1 .. m]] - (if e == e' then f$vertex$r e else zero) | e <- es, e' <- es]
+
+wLPA_relations_map :: (Eq vertex, Num b, Ord edge) => (AtomType edge vertex -> b) -> WeightedGraph edge vertex -> [b]
+wLPA_relations_map = wLPA_relations_map' (fromInteger 0)
 
 wLPA_relations_show wg = wLPA_relations_map (Atom 1) wg
 
