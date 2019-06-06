@@ -2,6 +2,8 @@ module Polynomial (
    Polynomial,
    polynomial,
    degree,
+   zeroMultiplicity,
+   stripLeadingZeroes,
    isZero,
    constant,
    basis,
@@ -32,6 +34,12 @@ polynomial xs = stripTrailingZeroes (Polynomial xs)
 
 stripTrailingZeroes :: (Num a, Eq a) => Polynomial a -> Polynomial a
 stripTrailingZeroes (Polynomial xs) = Polynomial (reverse (dropWhile (0 ==) (reverse xs)))
+
+stripLeadingZeroes :: (Num a, Eq a) => Polynomial a -> Polynomial a
+stripLeadingZeroes (Polynomial xs) = Polynomial (dropWhile (0 ==) xs)
+
+zeroMultiplicity :: (Eq a, Num a) => Polynomial a -> Int
+zeroMultiplicity (Polynomial xs) = length (takeWhile (0 ==) xs)
 
 degree :: (Num a, Eq a) => Polynomial a -> Int
 degree p = length (content (stripTrailingZeroes p)) - 1
@@ -83,11 +91,6 @@ instance (Num a,Eq a) => Eq (Polynomial a) where
   xs == ys =
     let Polynomial as = stripTrailingZeroes xs
         Polynomial bs = stripTrailingZeroes ys in as == bs
-
-instance (Num a,Ord a) => Ord (Polynomial a) where
-  compare xs ys =
-    let Polynomial as = stripTrailingZeroes xs
-        Polynomial bs = stripTrailingZeroes ys in compare as bs
 
 instance (Eq a,Num a) => Num (Polynomial a) where
   (Polynomial p) + (Polynomial q) = stripTrailingZeroes $ Polynomial (add p q)
