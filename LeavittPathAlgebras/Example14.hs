@@ -31,8 +31,8 @@ instance Num a => Num (Matrix2x2 a) where
 
 transpose (Matrix2x2 (a,b,c,d)) = mat2x2 a c b d
 
-weighted_graph_E :: WeightedGraph String String
-weighted_graph_E = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
+--weighted_graph_E :: WeightedGraph String String
+--weighted_graph_E = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
 
 weighted_graph_F :: WeightedGraph String String
 weighted_graph_F = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u")),("g",("u","v")),("h",("u","v"))]) (M.fromList [("e",1),("f",2),("g",1),("h",2)])

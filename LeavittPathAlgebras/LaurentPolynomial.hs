@@ -31,11 +31,11 @@ instance (Num a) => Num (LaurentPolynomial a) where
 reverseLaurentPolynomial isZero (LaurentPolynomial p d) = LaurentPolynomial p' (- (d + e))
  where (p',e) = reversePolynomial isZero p
 
-test :: LaurentPolynomial Int
-test = (LaurentPolynomial (constant 1) (-1)) * (LaurentPolynomial (constant 1) (1))
+lptest :: LaurentPolynomial Int
+lptest = (LaurentPolynomial (constant 1) (-1)) * (LaurentPolynomial (constant 1) (1))
 
-test2 :: LaurentPolynomial Int
-test2 = (LaurentPolynomial (constant 2) (-1)) + (LaurentPolynomial (constant 1) (1))
+lptest2 :: LaurentPolynomial Int
+lptest2 = (LaurentPolynomial (constant 2) (-1)) + (LaurentPolynomial (constant 1) (1))
 
-test3 :: LaurentPolynomial Int
-test3 = (LaurentPolynomial (constant 3) (-2)) + (LaurentPolynomial (constant 1) (1))
+lptest3 :: LaurentPolynomial Int
+lptest3 = (LaurentPolynomial (constant 3) (-2)) + (LaurentPolynomial (constant 1) (1))
