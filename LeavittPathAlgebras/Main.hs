@@ -1,8 +1,6 @@
 module Main where
 
 import qualified WeightedLPA as WLPA
-import Example9
-import FiniteFields
+import Example14
 
--- main = putStrLn $ unlines $ take 30 $ map show $ WLPA.projections weighted_example (tail z2)
-main = putStrLn $ unlines $ take 30 $ map show $ test2
+main = print $ map (checkIsZero weighted_graph_G) testHomomorphism

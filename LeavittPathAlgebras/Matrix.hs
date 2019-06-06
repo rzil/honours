@@ -6,7 +6,10 @@ import Orthogonals (determinantClow)
 import Polynomial hiding (isZero)
 import Data.Function (on)
 
-newtype Matrix a = Matrix {content :: [[a]]}  deriving (Eq)
+newtype Matrix a = Matrix {content :: [[a]]}
+
+instance Eq a => Eq (Matrix a) where
+  (Matrix xs) == (Matrix ys) = xs == ys
 
 instance Show a => Show (Matrix a) where
   show (Matrix rs) = unlines [L.intercalate "\t\t" (map show r) | r <- rs]
@@ -18,8 +21,8 @@ instance Num a => Num (Matrix a) where
   xs + ys = elementwise (+) xs ys
   negate = fmap negate
   xs * ys = Matrix [[sum (zipWith (*) c r) | c <- content (transpose xs)] | r <- content ys]
-  fromInteger n = Matrix [[fromInteger n]]
-  abs m = Matrix [[determinant m]]
+  fromInteger n = error "cannot convert integer"
+  abs m = undefined
   signum m = undefined
 
 -- https://rosettacode.org/wiki/Reduced_row_echelon_form#Haskell

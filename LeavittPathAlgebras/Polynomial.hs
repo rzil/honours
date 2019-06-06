@@ -4,6 +4,8 @@ module Polynomial (
    degree,
    zeroMultiplicity,
    stripLeadingZeroes,
+   reversePolynomial,
+   shift,
    isZero,
    constant,
    basis,
@@ -29,14 +31,18 @@ import Data.Ratio
 newtype Polynomial a = Polynomial {content :: [a]}  deriving Show
 data ExtendedNum a = ExtendedNum a | PositiveInfinity | NegativeInfinity  deriving Show
 
-polynomial :: (Num a, Eq a) => [a] -> Polynomial a
-polynomial xs = stripTrailingZeroes (Polynomial xs)
+polynomial :: [a] -> Polynomial a
+polynomial xs = Polynomial xs
 
 stripTrailingZeroes :: (Num a, Eq a) => Polynomial a -> Polynomial a
 stripTrailingZeroes (Polynomial xs) = Polynomial (reverse (dropWhile (0 ==) (reverse xs)))
 
 stripLeadingZeroes :: (Num a, Eq a) => Polynomial a -> Polynomial a
 stripLeadingZeroes (Polynomial xs) = Polynomial (dropWhile (0 ==) xs)
+
+--reversePolynomial :: (Eq a, Num a) => Polynomial a -> (Polynomial a, Int)
+reversePolynomial isZero (Polynomial xs) = (Polynomial (reverse cs),length zs)
+  where (zs,cs) = break (not . isZero) xs
 
 zeroMultiplicity :: (Eq a, Num a) => Polynomial a -> Int
 zeroMultiplicity (Polynomial xs) = length (takeWhile (0 ==) xs)
@@ -49,6 +55,9 @@ isZero (Polynomial xs) = all (0 ==) xs
 
 constant :: a -> Polynomial a
 constant n = Polynomial [n]
+
+shift :: Num a => Int -> Polynomial a -> Polynomial a
+shift n (Polynomial xs) = Polynomial (take n (repeat 0) ++ xs)
 
 basis :: Num a => [Polynomial a]
 basis = [Polynomial (take k (repeat 0) ++ [1]) | k <- [0..]]
@@ -92,10 +101,15 @@ instance (Num a,Eq a) => Eq (Polynomial a) where
     let Polynomial as = stripTrailingZeroes xs
         Polynomial bs = stripTrailingZeroes ys in as == bs
 
-instance (Eq a,Num a) => Num (Polynomial a) where
-  (Polynomial p) + (Polynomial q) = stripTrailingZeroes $ Polynomial (add p q)
+instance (Num a,Ord a,Eq a) => Ord (Polynomial a) where
+  compare xs ys =
+    let Polynomial as = stripTrailingZeroes xs
+        Polynomial bs = stripTrailingZeroes ys in compare as bs
+
+instance (Num a) => Num (Polynomial a) where
+  (Polynomial p) + (Polynomial q) = Polynomial (add p q)
   negate = fmap negate
-  (Polynomial p) * (Polynomial q) = stripTrailingZeroes $ Polynomial (mult p q)
+  (Polynomial p) * (Polynomial q) = Polynomial (mult p q)
   fromInteger n = constant (fromInteger n)
   abs = undefined
   signum = undefined

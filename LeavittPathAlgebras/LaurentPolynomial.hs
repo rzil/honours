@@ -5,6 +5,7 @@ import Polynomial
 data LaurentPolynomial a = LaurentPolynomial {p :: Polynomial a, d :: Int}  deriving Show
 
 -- removes leading zeroes
+simplify (LaurentPolynomial p _) | p == 0 = LaurentPolynomial (fromInteger 0) 0
 simplify (LaurentPolynomial p d) = LaurentPolynomial (stripLeadingZeroes p) (d + zeroMultiplicity p)
 
 instance Functor LaurentPolynomial where
@@ -15,17 +16,20 @@ instance (Num a,Eq a) => Eq (LaurentPolynomial a) where
 
 eq (LaurentPolynomial px dx) (LaurentPolynomial py dy) = px == py && dx == dy
 
-instance (Eq a,Num a) => Num (LaurentPolynomial a) where
+instance (Num a) => Num (LaurentPolynomial a) where
   x@(LaurentPolynomial _ dx) + y@(LaurentPolynomial _ dy) | dx < dy = y + x
-  (LaurentPolynomial px dx) + (LaurentPolynomial py dy) = LaurentPolynomial (py + x^n * px) dy
-   where
-    n = dx - dy
-    x = polynomial [0,1]
+  (LaurentPolynomial px dx) + (LaurentPolynomial py dy) = LaurentPolynomial (py + (shift n px)) dy
+   where n = dx - dy
   negate = fmap negate
   (LaurentPolynomial px dx) * (LaurentPolynomial py dy) = LaurentPolynomial (px * py) (dx + dy)
   fromInteger n = LaurentPolynomial (fromInteger n) 0
   abs = undefined
   signum = undefined
+
+-- substitute x^{-1} for x
+--reverseLaurentPolynomial :: (Eq a, Num a) => LaurentPolynomial a -> LaurentPolynomial a
+reverseLaurentPolynomial isZero (LaurentPolynomial p d) = LaurentPolynomial p' (- (d + e))
+ where (p',e) = reversePolynomial isZero p
 
 test :: LaurentPolynomial Int
 test = (LaurentPolynomial (constant 1) (-1)) * (LaurentPolynomial (constant 1) (1))
