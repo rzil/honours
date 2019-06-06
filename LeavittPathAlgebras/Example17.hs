@@ -1,5 +1,5 @@
 {-# LANGUAGE DataKinds, TypeApplications #-}
-module Example16 where
+module Example17 where
 
 import qualified WeightedLPA as WLPA
 import Graph
@@ -12,7 +12,7 @@ weighted_graph_E :: WeightedGraph String String
 weighted_graph_E = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
 
 weighted_graph_G :: WeightedGraph String String
-weighted_graph_G = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u")),("g",("u","t")),("h",("u","t"))]) (M.fromList [("e",1),("f",2),("g",1),("h",2)])
+weighted_graph_G = WeightedGraph (buildGraphFromEdges [("e",("v","u")),("f",("v","u")),("g",("u","t")),("h",("u","t")),("i",("t","s")),("j",("t","s"))]) (M.fromList [("e",1),("f",2),("g",1),("h",2),("i",1),("j",2)])
 
 atom = WLPA.Atom 1
 vertex = atom . WLPA.vertex
@@ -32,20 +32,24 @@ f2 = edge2 "f"
 
 adjoint m = fmap s (transpose m)
 
-phi :: WLPA.AtomType String String -> Matrix 3 3 (WLPA.Term String String Integer)
+phi :: WLPA.AtomType String String -> Matrix 4 4 (WLPA.Term String String Integer)
 phi (WLPA.AVertex "v") = unsafeSet v (1,1) zero
 phi (WLPA.AVertex "u") = unsafeSet v (2,2) zero
 phi (WLPA.AVertex "t") = unsafeSet v (3,3) zero
+phi (WLPA.AVertex "s") = unsafeSet v (4,4) zero
 phi (WLPA.AEdge "e" 1) = unsafeSet e1 (1,2) zero
 phi (WLPA.AEdge "f" 1) = unsafeSet f1 (1,2) zero
 phi (WLPA.AEdge "f" 2) = unsafeSet f2 (1,2) zero
 phi (WLPA.AEdge "g" 1) = unsafeSet e1 (2,3) zero
 phi (WLPA.AEdge "h" 1) = unsafeSet f1 (2,3) zero
 phi (WLPA.AEdge "h" 2) = unsafeSet f2 (2,3) zero
+phi (WLPA.AEdge "i" 1) = unsafeSet e1 (3,4) zero
+phi (WLPA.AEdge "j" 1) = unsafeSet f1 (3,4) zero
+phi (WLPA.AEdge "j" 2) = unsafeSet f2 (3,4) zero
 phi (WLPA.AGhostEdge e w) = adjoint (phi (WLPA.AEdge e w))
 phi _ = zero
 
-testHomomorphism :: [Matrix 3 3 (WLPA.Term String String Integer)]
+testHomomorphism :: [Matrix 4 4 (WLPA.Term String String Integer)]
 testHomomorphism = WLPA.wLPA_relations_map' zero phi weighted_graph_G
 
 fmapBasisForm wgraph = fmap (WLPA.convertToBasisForm wgraph)
