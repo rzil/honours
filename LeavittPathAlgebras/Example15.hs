@@ -62,6 +62,8 @@ fmapBasisForm wgraph = fmap (WLPA.convertToBasisForm wgraph)
 
 check = map (fmapBasisForm weighted_graph_G) testHomomorphism
 
+main = putStrLn$unlines$map show check
+
 {-
 wLPA_relations_show wg = wLPA_relations_map (Atom 1) wg
 
