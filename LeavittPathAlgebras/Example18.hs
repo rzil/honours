@@ -10,11 +10,11 @@ import Data.Matrix
 weighted_graph_E :: WeightedGraph String String
 weighted_graph_E = WeightedGraph (buildGraphFromEdges [("e",("v","v")),("f",("v","v"))]) (M.fromList [("e",1),("f",2)])
 
-weighted_graph_G :: Int -> WeightedGraph String String
+weighted_graph_G :: Int -> WeightedGraph (String,Int) (String,Int)
 weighted_graph_G n = WeightedGraph (buildGraphFromEdges edges) (M.fromList weights)
  where
-  edges = concat [[("e"++show i,("v"++show i,"v"++show (i+1))),("f"++show i,("v"++show i,"v"++show (i+1)))] | i <- [1..n-1]]
-  weights = concat [[("e"++show i,1),("f"++show i,2)] | i <- [1..n-1]]
+  edges = concat [[(("e",i),(("v",i),("v",i+1))),(("f",i),(("v",i),("v",i+1)))] | i <- [1..n-1]]
+  weights = concat [[(("e",i),1),(("f",i),2)] | i <- [1..n-1]]
 
 atom = WLPA.Atom 1
 vertex = atom . WLPA.vertex
@@ -34,11 +34,11 @@ f2 = edge2 "f"
 
 adjoint m = fmap s (transpose m)
 
-phi :: Int -> WLPA.AtomType String String -> Matrix (WLPA.Term String String Integer)
-phi n (WLPA.AVertex ('v':num)) = let i = read num in setElem v (i,i) (zero n n)
-phi n (WLPA.AEdge ('e':num) 1) = let i = read num in setElem e1 (i,i+1) (zero n n)
-phi n (WLPA.AEdge ('f':num) 1) = let i = read num in setElem f1 (i,i+1) (zero n n)
-phi n (WLPA.AEdge ('f':num) 2) = let i = read num in setElem f2 (i,i+1) (zero n n)
+phi :: Int -> WLPA.AtomType (String,Int) (String,Int) -> Matrix (WLPA.Term String String Integer)
+phi n (WLPA.AVertex ("v",i)) = setElem v (i,i) (zero n n)
+phi n (WLPA.AEdge ("e",i) 1) = setElem e1 (i,i+1) (zero n n)
+phi n (WLPA.AEdge ("f",i) 1) = setElem f1 (i,i+1) (zero n n)
+phi n (WLPA.AEdge ("f",i) 2) = setElem f2 (i,i+1) (zero n n)
 phi n (WLPA.AGhostEdge e w) = adjoint (phi n (WLPA.AEdge e w))
 phi n _ = zero n n
 
