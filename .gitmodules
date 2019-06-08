@@ -1,0 +1,3 @@
+[submodule "LeavittPathAlgebras/wLPAs"]
+	path = LeavittPathAlgebras/wLPAs
+	url = https://github.com/rzil/wLPAs
