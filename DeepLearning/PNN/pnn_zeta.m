@@ -2,6 +2,7 @@
 # Based on Frieder Stolzenburg talk at WSU
 # Applied to the Riemann-Zeta function on the critical strip
 
+pkg load statistics;
 pkg load specfun;   # for the Riemann zeta function
 
 # Optimal n seems to be around 400

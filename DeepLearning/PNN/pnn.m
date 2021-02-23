@@ -1,6 +1,8 @@
 # Implementation of predictive neural net
 # Based on Frieder Stolzenburg talk at WSU
 
+pkg load statistics;
+
 n = 99;
 
 M_res = normrnd(0,1/sqrt(n+1),n);

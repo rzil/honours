@@ -2,6 +2,8 @@
 # Based on Frieder Stolzenburg talk at WSU
 # Using complex numbers
 
+pkg load statistics;
+
 n = 100;  # total matrix size
 k = 3;    # in/out dimension
 
